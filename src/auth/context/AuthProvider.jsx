@@ -1,3 +1,4 @@
+import { useLocations } from "../../hooks/useLocations";
 import { useRoles } from "../../hooks/useRoles";
 import { useAuth } from "../hooks/useAuth"
 import { AuthContext } from "./AuthContext"
@@ -10,6 +11,11 @@ export const AuthProvider = ({ children }) => {
         getRoles,
     } = useRoles();
 
+    const {
+        countries,
+        getCountries
+    } = useLocations();
+
     return (
         <AuthContext.Provider value={
             {
@@ -18,6 +24,8 @@ export const AuthProvider = ({ children }) => {
                 handlerLogout,
                 roles,
                 getRoles,
+                countries,
+                getCountries
             }
 
         }>

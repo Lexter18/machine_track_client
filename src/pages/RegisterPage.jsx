@@ -7,11 +7,14 @@ export const RegisterPage = () => {
 
     const {
         roles,
-        getRoles,       
+        getRoles, 
+        countries,
+        getCountries,      
     } = useContext(AuthContext);
 
     useEffect(() => {
-        getRoles();    
+        getRoles();
+        getCountries();    
     }, []);
 
     return (

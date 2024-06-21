@@ -1,11 +1,13 @@
 import { useContext } from "react";
 import { Link } from "react-router-dom"
 import { AuthContext } from "../../auth/context/AuthContext";
+import { IDENTIFICATION_TYPES } from "../../utils/constants";
 
 export const RegisterBody = () => {
 
-    const { roles = [] } = useContext(AuthContext);
-    console.log(roles )
+    const { roles = [], countries = [] } = useContext(AuthContext);
+    console.log("ROLES = ", JSON.stringify(roles, null, 2))
+    console.log("CONUNTRY = ", JSON.stringify(countries, null, 2))
 
     const onInputChange = ({ target }) => {
 
@@ -115,11 +117,11 @@ export const RegisterBody = () => {
 
                                             <div className="col-md-2">
                                                 <div className="form-floating mb-3">
-                                                    <select className="form-select mb-3" defaultValue="0" >
+                                                    <select className="form-select mb-3" defaultValue="0">
                                                         <option value="0">Seleccione</option>
-                                                        <option value="1">One</option>
-                                                        <option value="2">Two</option>
-                                                        <option value="3">Three</option>
+                                                        {IDENTIFICATION_TYPES.map((type) => (
+                                                            <option key={type.value} value={type.value}>{type.label}</option>
+                                                        ))}
                                                     </select>
                                                     <label className="form-label">Tipo Identificacion</label>
                                                 </div>
@@ -139,11 +141,11 @@ export const RegisterBody = () => {
 
                                             <div className="col-md-4">
                                                 <div className="form-floating mb-3">
-                                                    <select className="form-select my-3" defaultValue="0" >
+                                                    <select className="form-select mb-3" defaultValue="0">
                                                         <option value="0">Seleccione</option>
-                                                        <option value="1">One</option>
-                                                        <option value="2">Two</option>
-                                                        <option value="3">Three</option>
+                                                        {countries.map((country) => (
+                                                            <option key={country.idCountry} value={country.idCountry}>{country.name}</option>
+                                                        ))}
                                                     </select>
                                                     <label className="form-label">Pais</label>
                                                 </div>
@@ -215,11 +217,11 @@ export const RegisterBody = () => {
 
                                             <div className="col-md-3">
                                                 <div className="form-floating mb-3">
-                                                    <select className="form-select mb-3" defaultValue="0" >
+                                                    <select className="form-select mb-3" defaultValue="0">
                                                         <option value="0">Seleccione</option>
-                                                        <option value="1">One</option>
-                                                        <option value="2">Two</option>
-                                                        <option value="3">Three</option>
+                                                        {roles.map((role) => (
+                                                            <option key={role.idRole} value={role.idRole}>{role.role}</option>
+                                                        ))}
                                                     </select>
                                                     <label className="form-label">Rol</label>
                                                 </div>
