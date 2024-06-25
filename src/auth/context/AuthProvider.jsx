@@ -6,15 +6,8 @@ import { AuthContext } from "./AuthContext"
 export const AuthProvider = ({ children }) => {
     const { login, handlerLogin, handlerLogout } = useAuth();
 
-    const {
-        roles,
-        getRoles,
-    } = useRoles();
-
-    const {
-        countries,
-        getCountries
-    } = useLocations();
+    const location = useLocations();
+    const roles = useRoles();
 
     return (
         <AuthContext.Provider value={
@@ -22,10 +15,9 @@ export const AuthProvider = ({ children }) => {
                 login,
                 handlerLogin,
                 handlerLogout,
-                roles,
-                getRoles,
-                countries,
-                getCountries
+                ...roles,                
+                ...location
+                
             }
 
         }>

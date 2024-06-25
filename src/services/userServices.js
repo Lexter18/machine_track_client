@@ -22,7 +22,8 @@ export const findUsers = async () => {
 
 export const listRoles = async () => {
     try {        
-        return await axios.get(BASE_URL + '/roles');
+        const response = await axios.get(BASE_URL + '/roles');
+        return response.data;
     } catch (error) {
         throw error;
     }

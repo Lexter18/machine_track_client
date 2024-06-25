@@ -1,8 +1,8 @@
 export const rolesReducer = (state = [], action) => {
 
     switch (action.type) {
-        case 'loadingRoles':
-            return action.payload;        
+        case 'loadingRoles':                
+            return { ...state, roles: action.payload };  
         default:
             return state;
     }

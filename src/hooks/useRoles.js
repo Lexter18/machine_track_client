@@ -1,24 +1,23 @@
-import { useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import { rolesReducer } from "../reducers/rolesReducer";
 import { listRoles } from "../services/userServices";
 
 
-const initialRoles = [];
-
 export const useRoles = () => {
-    const [roles, dispatch] = useReducer(rolesReducer, initialRoles);
+    const [state, dispatch] = useReducer(rolesReducer, {
+        roles: []        
+    });
 
-    const getRoles = async () => {        
-        const result = await listRoles();        
-        dispatch({
-            type: 'loadingRoles',
-            payload: result.data,
-        })
-    }
+    useEffect(() => {
+        const getRoles = async () => {
+            const roles = await listRoles();      
+            dispatch({ type: 'loadingRoles', payload: roles });
+        };
+        getRoles();
+    }, []);
 
     return {
-        roles,
-        getRoles,
+        ...state
     }
 
 }

@@ -1,15 +1,50 @@
-import { useContext } from "react";
-import { Link } from "react-router-dom"
-import { AuthContext } from "../../auth/context/AuthContext";
-import { IDENTIFICATION_TYPES } from "../../utils/constants";
+import {useContext, useState} from "react";
+import {Link} from "react-router-dom"
+import {AuthContext} from "../../auth/context/AuthContext";
+import {IDENTIFICATION_TYPES} from "../../utils/constants";
 
 export const RegisterBody = () => {
 
-    const { roles = [], countries = [] } = useContext(AuthContext);
-    console.log("ROLES = ", JSON.stringify(roles, null, 2))
-    console.log("CONUNTRY = ", JSON.stringify(countries, null, 2))
+    const {
+        roles,
+        countries,
+        departments,
+        municipalities,
+        fetchDepartments,
+        fetchMunicipalities,
+        isDepartmentDisabled,
+        setIsDepartmentDisabled,
+        isMunicipalityDisabled,
+        setIsMunicipalityDisabled
+    } = useContext(AuthContext);
 
-    const onInputChange = ({ target }) => {
+    const [selectedCountry, setSelectedCountry] = useState("0");
+    const [selectedDepartment, setSelectedDepartment] = useState("0");
+
+    // console.log("ROLES = ", JSON.stringify(roles, null, 2))
+    // console.log("CONUNTRY = ", JSON.stringify(countries, null, 2))
+
+    const handleCountryChange = (event) => {
+        const countryId = event.target.value;
+        setSelectedCountry(countryId);
+        if (countryId === "0") {
+            setIsDepartmentDisabled(true);
+        } else {
+            fetchDepartments(countryId);
+        }
+    };
+
+    const handleDepartmentChange = (event) => {
+        const departmentId = event.target.value;
+        setSelectedDepartment(departmentId);
+        if (departmentId === "0") {
+            setIsMunicipalityDisabled(true);
+        } else {
+            fetchMunicipalities(departmentId);
+        }
+    };
+
+    const onInputChange = ({target}) => {
 
     }
 
@@ -31,10 +66,12 @@ export const RegisterBody = () => {
                                 <div className="card-body p-3 p-md-4 p-xl-5">
                                     <div className="text-center mb-3">
                                         <a href="index.html">
-                                            <img src="/src/assets/img/branding/console-logo.svg" alt="BootstrapBrain Logo" width="175" height="57" />
+                                            <img src="/src/assets/img/branding/console-logo.svg"
+                                                 alt="BootstrapBrain Logo" width="175" height="57"/>
                                         </a>
                                     </div>
-                                    <h2 className="fs-6 fw-normal text-center text-secondary mb-4">Ingresa tus datos para registrarte</h2>
+                                    <h2 className="fs-6 fw-normal text-center text-secondary mb-4">Ingresa tus datos
+                                        para registrarte</h2>
 
 
                                     <div className="card-body p-4">
@@ -43,75 +80,78 @@ export const RegisterBody = () => {
                                             <div className="col-md-6">
                                                 <div className="form-floating mb-3">
                                                     <input type="text"
-                                                        className="form-control form-control-sm"
-                                                        name="firstname"
-                                                        id="firstname"
-                                                        placeholder="Primer Nombre"
-                                                        required />
-                                                    <label htmlFor="firstname" className="form-label">Primer Nombre</label>
+                                                           className="form-control form-control-sm"
+                                                           name="firstname"
+                                                           id="firstname"
+                                                           placeholder="Primer Nombre"
+                                                           required/>
+                                                    <label htmlFor="firstname" className="form-label">Primer
+                                                        Nombre</label>
                                                 </div>
                                             </div>
 
                                             <div className="col-md-6">
                                                 <div className="form-floating mb-3">
                                                     <input type="text"
-                                                        className="form-control"
-                                                        name="middlename"
-                                                        id="middlename"
-                                                        placeholder="Segundo Nombre"
+                                                           className="form-control"
+                                                           name="middlename"
+                                                           id="middlename"
+                                                           placeholder="Segundo Nombre"
                                                     />
-                                                    <label htmlFor="middlename" className="form-label">Segundo Nombre</label>
+                                                    <label htmlFor="middlename" className="form-label">Segundo
+                                                        Nombre</label>
                                                 </div>
                                             </div>
 
                                             <div className="col-md-6">
                                                 <div className="form-floating mb-3">
                                                     <input type="text"
-                                                        className="form-control"
-                                                        name="lastname"
-                                                        id="lastname"
-                                                        placeholder="Primer Apellido"
-                                                        required />
-                                                    <label htmlFor="lastname" className="form-label">Primer Apellido</label>
+                                                           className="form-control"
+                                                           name="lastname"
+                                                           id="lastname"
+                                                           placeholder="Primer Apellido"
+                                                           required/>
+                                                    <label htmlFor="lastname" className="form-label">Primer
+                                                        Apellido</label>
                                                 </div>
                                             </div>
 
                                             <div className="col-md-6">
                                                 <div className="form-floating mb-3">
                                                     <input type="text"
-                                                        className="form-control"
-                                                        name="secondsurname"
-                                                        id="secondsurname"
-                                                        placeholder="Segundo Apellido"
+                                                           className="form-control"
+                                                           name="secondsurname"
+                                                           id="secondsurname"
+                                                           placeholder="Segundo Apellido"
                                                     />
                                                     <label htmlFor="secondsurname"
-                                                        className="form-label">Segundo Apellido</label>
+                                                           className="form-label">Segundo Apellido</label>
                                                 </div>
                                             </div>
 
                                             <div className="col-md-4">
                                                 <div className="form-floating mb-3">
                                                     <input type="email"
-                                                        className="form-control"
-                                                        name="email"
-                                                        id="email"
-                                                        placeholder="name@example.com"
-                                                        onChange={onInputChange}
-                                                        required />
+                                                           className="form-control"
+                                                           name="email"
+                                                           id="email"
+                                                           placeholder="name@example.com"
+                                                           onChange={onInputChange}
+                                                           required/>
                                                     <label htmlFor="email"
-                                                        className="form-label">Email</label>
+                                                           className="form-label">Email</label>
                                                 </div>
                                             </div>
 
                                             <div className="col-md-3">
                                                 <div className="form-floating mb-3">
                                                     <input type="text"
-                                                        className="form-control"
-                                                        name="phone"
-                                                        placeholder="# Celular"
-                                                        required />
+                                                           className="form-control"
+                                                           name="phone"
+                                                           placeholder="# Celular"
+                                                           required/>
                                                     <label htmlFor="phone"
-                                                        className="form-label"># Celular</label>
+                                                           className="form-label"># Celular</label>
                                                 </div>
                                             </div>
 
@@ -120,7 +160,8 @@ export const RegisterBody = () => {
                                                     <select className="form-select mb-3" defaultValue="0">
                                                         <option value="0">Seleccione</option>
                                                         {IDENTIFICATION_TYPES.map((type) => (
-                                                            <option key={type.value} value={type.value}>{type.label}</option>
+                                                            <option key={type.value}
+                                                                    value={type.value}>{type.label}</option>
                                                         ))}
                                                     </select>
                                                     <label className="form-label">Tipo Identificacion</label>
@@ -130,34 +171,47 @@ export const RegisterBody = () => {
                                             <div className="col-md-3">
                                                 <div className="form-floating mb-3">
                                                     <input type="text"
-                                                        className="form-control"
-                                                        name="identification"
-                                                        placeholder="Numero Identificacion"
-                                                        required />
+                                                           className="form-control"
+                                                           name="identification"
+                                                           placeholder="Numero Identificacion"
+                                                           required/>
                                                     <label htmlFor="identification"
-                                                        className="form-label">Numero Identificacion</label>
+                                                           className="form-label">Numero Identificacion</label>
                                                 </div>
                                             </div>
 
                                             <div className="col-md-4">
                                                 <div className="form-floating mb-3">
-                                                    <select className="form-select mb-3" defaultValue="0">
+                                                    <select
+                                                        className="form-select mb-3"
+                                                        value={selectedCountry}
+                                                        onChange={handleCountryChange}
+                                                    >
                                                         <option value="0">Seleccione</option>
                                                         {countries.map((country) => (
-                                                            <option key={country.idCountry} value={country.idCountry}>{country.name}</option>
+                                                            <option key={country.idCountry}
+                                                                    value={country.idCountry}>{country.name}</option>
                                                         ))}
                                                     </select>
+
                                                     <label className="form-label">Pais</label>
                                                 </div>
                                             </div>
 
                                             <div className="col-md-4">
                                                 <div className="form-floating mb-3">
-                                                    <select className="form-select my-3" defaultValue="0" >
+                                                    <select
+                                                        className="form-select mb-3"                                                                                                                disabled={isDepartmentDisabled}
+                                                        value={selectedDepartment}
+                                                        onChange={handleDepartmentChange}
+                                                    >
                                                         <option value="0">Seleccione</option>
-                                                        <option value="1">One</option>
-                                                        <option value="2">Two</option>
-                                                        <option value="3">Three</option>
+                                                        {departments.map((department) => (
+                                                            <option key={department.idDepartment}
+                                                                    value={department.idDepartment}>
+                                                                {department.name}
+                                                            </option>
+                                                        ))}
                                                     </select>
                                                     <label className="form-label">Departamento</label>
                                                 </div>
@@ -165,11 +219,18 @@ export const RegisterBody = () => {
 
                                             <div className="col-md-4">
                                                 <div className="form-floating mb-3">
-                                                    <select className="form-select my-3" defaultValue="0" >
+                                                    <select
+                                                        className="form-select mb-3"
+                                                        defaultValue="0"
+                                                        disabled={isMunicipalityDisabled}
+                                                    >
                                                         <option value="0">Seleccione</option>
-                                                        <option value="1">One</option>
-                                                        <option value="2">Two</option>
-                                                        <option value="3">Three</option>
+                                                        {municipalities.map((municipality) => (
+                                                            <option key={municipality.idMunicipality}
+                                                                    value={municipality.idMunicipality}>
+                                                                {municipality.name}
+                                                            </option>
+                                                        ))}
                                                     </select>
                                                     <label className="form-label">Municipio</label>
                                                 </div>
@@ -178,40 +239,40 @@ export const RegisterBody = () => {
                                             <div className="col-md-3">
                                                 <div className="form-floating mb-3">
                                                     <input type="text"
-                                                        className="form-control"
-                                                        name="username"
-                                                        placeholder="Usuario"
-                                                        onChange={onInputChange}
-                                                        required />
+                                                           className="form-control"
+                                                           name="username"
+                                                           placeholder="Usuario"
+                                                           onChange={onInputChange}
+                                                           required/>
                                                     <label htmlFor="username"
-                                                        className="form-label">Usuario</label>
+                                                           className="form-label">Usuario</label>
                                                 </div>
                                             </div>
 
                                             <div className="col-md-3">
                                                 <div className="form-floating mb-3">
                                                     <input type="password"
-                                                        className="form-control"
-                                                        name="password"
-                                                        id="password"
-                                                        placeholder="Password"
-                                                        onChange={onInputChange}
-                                                        required />
+                                                           className="form-control"
+                                                           name="password"
+                                                           id="password"
+                                                           placeholder="Password"
+                                                           onChange={onInputChange}
+                                                           required/>
                                                     <label htmlFor="password"
-                                                        className="form-label">Password</label>
+                                                           className="form-label">Password</label>
                                                 </div>
                                             </div>
 
                                             <div className="col-md-3">
                                                 <div className="form-floating mb-3">
                                                     <input type="password"
-                                                        className="form-control"
-                                                        name="confirmpassword"
-                                                        id="confirmpassword"
-                                                        placeholder="Confirmar Password"
-                                                        required />
+                                                           className="form-control"
+                                                           name="confirmpassword"
+                                                           id="confirmpassword"
+                                                           placeholder="Confirmar Password"
+                                                           required/>
                                                     <label htmlFor="confirmpassword"
-                                                        className="form-label">Confirmar Password</label>
+                                                           className="form-label">Confirmar Password</label>
                                                 </div>
                                             </div>
 
@@ -220,7 +281,8 @@ export const RegisterBody = () => {
                                                     <select className="form-select mb-3" defaultValue="0">
                                                         <option value="0">Seleccione</option>
                                                         {roles.map((role) => (
-                                                            <option key={role.idRole} value={role.idRole}>{role.role}</option>
+                                                            <option key={role.idRole}
+                                                                    value={role.idRole}>{role.role}</option>
                                                         ))}
                                                     </select>
                                                     <label className="form-label">Rol</label>
@@ -230,9 +292,12 @@ export const RegisterBody = () => {
 
                                             <div className="col-12">
                                                 <div className="form-check">
-                                                    <input className="form-check-input" type="checkbox" value="" name="iAgree" id="iAgree" />
+                                                    <input className="form-check-input" type="checkbox" value=""
+                                                           name="iAgree" id="iAgree"/>
                                                     <label className="form-check-label text-secondary" htmlFor="iAgree">
-                                                        Estoy de acuerdo con <a href="#!" className="link-primary text-decoration-none">los terminos y condiciones</a>
+                                                        Estoy de acuerdo con <a href="#!"
+                                                                                className="link-primary text-decoration-none">los
+                                                        terminos y condiciones</a>
                                                     </label>
                                                 </div>
                                             </div>
@@ -248,7 +313,10 @@ export const RegisterBody = () => {
                                             </div>
 
                                             <div className="col-12">
-                                                <p className="m-0 text-secondary text-center">¿Ya tienes una cuenta? <Link to="/login" className="link-primary text-decoration-none">Login</Link></p>
+                                                <p className="m-0 text-secondary text-center">¿Ya tienes una
+                                                    cuenta? <Link to="/login"
+                                                                  className="link-primary text-decoration-none">Login</Link>
+                                                </p>
                                             </div>
 
                                         </form>
@@ -260,7 +328,7 @@ export const RegisterBody = () => {
                     </div>
                 </div>
             </div>
-        </section >
+        </section>
 
     );
 }
