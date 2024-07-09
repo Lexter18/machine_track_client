@@ -20,6 +20,15 @@ export const findUsers = async () => {
 
 }
 
+export const saveInitialUser = async (userData) => {
+    try {
+        const response = await axios.post(`${BASE_URL}/initialRegistration`, userData);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const listRoles = async () => {
     try {        
         const response = await axios.get(BASE_URL + '/roles');
