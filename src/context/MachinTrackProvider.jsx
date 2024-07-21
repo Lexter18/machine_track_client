@@ -6,14 +6,16 @@ export const MachinTrackProvider = ({ children }) => {
 
     const {
         users,
-        getUsers,
+        getUsersByOwner,
+        getUsersByRol,
     } = useUsers();
     
     return (
         <MachinTrackContext.Provider value={
             {
                 users,
-                getUsers                
+                getUsersByOwner,
+                getUsersByRol
             }
 
         }>

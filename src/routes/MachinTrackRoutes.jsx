@@ -22,13 +22,13 @@ export const MachinTrackRoutes = () => {
                 <SideBar/>
                 <Routes>
                     <Route path="users/list"
-                           element={<ProtectedRoute element={UsersPage} roles={[ROLES.OWNER]} userRole={userRole}/>}/>
+                           element={<ProtectedRoute element={UsersPage} roles={[ROLES.OWNER.name]} userRole={userRole}/>}/>
                     <Route path="operation/work"
-                           element={<ProtectedRoute element={WorkPage} roles={[ROLES.OWNER]} userRole={userRole}/>}/>
+                           element={<ProtectedRoute element={WorkPage} roles={[ROLES.OWNER.name]} userRole={userRole}/>}/>
                     <Route path="operation/machine"
-                           element={<ProtectedRoute element={MachinePage} roles={[ROLES.OWNER]} userRole={userRole}/>}/>
+                           element={<ProtectedRoute element={MachinePage} roles={[ROLES.OWNER.name]} userRole={userRole}/>}/>
 
-                    <Route path="users/owners" element={<ProtectedRoute element={OwnerUserPage} roles={[ROLES.ADMIN]}
+                    <Route path="users/owners" element={<ProtectedRoute element={OwnerUserPage} roles={[ROLES.ADMIN.name]}
                                                                         userRole={userRole}/>}/>
 
                     <Route path="/*" element={<Navigate to="/home"/>}/>

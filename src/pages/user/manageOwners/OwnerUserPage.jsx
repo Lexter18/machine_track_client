@@ -1,7 +1,18 @@
 import {Link} from "react-router-dom";
+import {useContext, useEffect} from "react";
+import {MachinTrackContext} from "../../../context/MachinTrackContext.jsx";
 
 
 export const OwnerUserPage = () => {
+
+    const {
+        users,
+        getUsersByRol,
+    } = useContext(MachinTrackContext);
+
+    useEffect(() => {
+        getUsersByRol();
+    }, []);
 
     return (
         <>

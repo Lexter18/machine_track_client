@@ -7,11 +7,11 @@ export const UsersPage = () => {
 
     const {
         users,
-        getUsers,
+        getUsersByOwner,
     } = useContext(MachinTrackContext);
 
     useEffect(() => {
-        getUsers();
+        getUsersByOwner();
     }, []);
 
     return (

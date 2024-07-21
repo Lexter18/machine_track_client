@@ -11,8 +11,8 @@ const config = () => {
     }
 }
 
-export const findUsers = async () => {
-    try {        
+export const findUsersByOwner = async () => {
+    try {
         const response = await axios.get(BASE_URL + '/byOwner', config());
         return response.data;
     } catch (error) {
@@ -31,7 +31,7 @@ export const saveInitialUser = async (userData) => {
 }
 
 export const listRoles = async () => {
-    try {        
+    try {
         const response = await axios.get(BASE_URL + '/roles');
         return response.data;
     } catch (error) {
@@ -42,7 +42,7 @@ export const listRoles = async () => {
 
 export const findUsersByRol = async (idRol) => {
     try {
-        const response = await axios.get(`${BASE_URL}/byRole/${idRol}`);
+        const response = await axios.get(`${BASE_URL}/byRole/${idRol}`, config());
         return response.data;
     } catch (error) {
         throw error;

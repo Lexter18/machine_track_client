@@ -1,17 +1,16 @@
-
 export const IDENTIFICATION_TYPES = [
-    { value: 'CC', label: 'CC' },
-    { value: 'CE', label: 'CE' },
-    { value: 'PP', label: 'PP' },
-    { value: 'TE', label: 'TE' },
-    { value: 'PEP', label: 'PEP' }
+    {value: 'CC', label: 'CC'},
+    {value: 'CE', label: 'CE'},
+    {value: 'PP', label: 'PP'},
+    {value: 'TE', label: 'TE'},
+    {value: 'PEP', label: 'PEP'}
 ];
 
 export const ROLES = {
-    ADMIN: 'ROLE_ADMIN',
-    OWNER: 'ROLE_OWNER',
-    OPERATOR: 'ROLE_OPERATOR',
-    SUPERVISOR: 'ROLE_SUPERVISOR'
+    ADMIN: {name: 'ROLE_ADMIN', id: 1},
+    OPERATOR: {name: 'ROLE_OPERATOR', id: 2},
+    SUPERVISOR: {name: 'ROLE_SUPERVISOR', id: 3},
+    OWNER: {name: 'ROLE_OWNER', id: 4}
 };
 
 export const ACTION_REDUCER = {

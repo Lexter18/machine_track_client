@@ -41,8 +41,8 @@ export const SideBar = () => {
                             <span className="nav-link-text fw-bold">Home</span>
                         </Link>
                     </li>
-                    {userRole === ROLES.OWNER && ownerMenus(closeOffcanvas)}
-                    {userRole === ROLES.ADMIN && adminMenus(closeOffcanvas)}
+                    {userRole === ROLES.OWNER.name && ownerMenus(closeOffcanvas)}
+                    {userRole === ROLES.ADMIN.name && adminMenus(closeOffcanvas)}
 
                 </ul>
             </div>

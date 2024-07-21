@@ -1,10 +1,10 @@
 import {useReducer} from "react";
 import {usersReducer} from "../reducers/usersReducer";
-import {findUsers, saveInitialUser} from "../services/userServices";
+import {findUsersByOwner, findUsersByRol, saveInitialUser} from "../services/userServices";
 import Swal from "sweetalert2";
 import {Messages} from "../utils/messages.js";
 import {useNavigate} from "react-router-dom";
-import {ACTION_REDUCER} from "../utils/constants.js";
+import {ACTION_REDUCER, ROLES} from "../utils/constants.js";
 
 const initialState = {
     user: [],
@@ -16,10 +16,18 @@ export const useUsers = () => {
     const [state, dispatch] = useReducer(usersReducer, initialState);
     const navigate = useNavigate();
 
-    const getUsers = async () => {
-        const users = await findUsers();
+    const getUsersByOwner = async () => {
+        const users = await findUsersByOwner();
         dispatch({
             type: ACTION_REDUCER.LIST_USER_OWNER,
+            payload: users,
+        })
+    }
+
+    const getUsersByRol = async () => {
+        const users = await findUsersByRol(ROLES.OWNER.id);
+        dispatch({
+            type: ACTION_REDUCER.LIST_USER_ROL,
             payload: users,
         })
     }
@@ -72,7 +80,8 @@ export const useUsers = () => {
 
     return {
         ...state,
-        getUsers,
+        getUsersByOwner,
+        getUsersByRol,
         createUser,
     }
 
