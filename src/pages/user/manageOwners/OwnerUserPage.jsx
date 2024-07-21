@@ -1,6 +1,7 @@
 import {Link} from "react-router-dom";
 import {useContext, useEffect} from "react";
 import {MachinTrackContext} from "../../../context/MachinTrackContext.jsx";
+import {UsersList} from "../../../components/users/UsersList.jsx";
 
 
 export const OwnerUserPage = () => {
@@ -30,6 +31,32 @@ export const OwnerUserPage = () => {
                                     <li className="breadcrumb-item active" aria-current="page">Listado De Owners</li>
                                 </ol>
                             </nav>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section className="pb-3 pb-md-4 pb-xl-5 bg-light">
+                <div className="container">
+                    <div className="row gy-3 gy-md-4">
+                        <div className="col-12 col-lg-12">
+                            <div className="row gy-3 gy-md-4">
+                                <div className="col-12">
+                                    <div className="card widget-card border-light shadow-sm">
+                                        <div
+                                            className="card-header bg-transparent p-4 border-light-subtle d-flex justify-content-end">
+                                            <button className="btn btn-primary my-0" type="submit">Registrar Owners
+                                            </button>
+                                        </div>
+                                        <div className="card-body p-4">
+                                            {users.length === 0
+                                                ? <div className="alert alert-warning">No hay usuarios</div>
+                                                : <UsersList/>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
