@@ -1,21 +1,18 @@
 import { useContext, useEffect } from "react";
 import { Link } from "react-router-dom"
-import { UsersList } from "../../components/users/UsersList";
-import { MachinTrackContext } from "../../context/MachinTrackContext";
+import { UsersList } from "../../../components/users/UsersList.jsx";
+import { MachinTrackContext } from "../../../context/MachinTrackContext.jsx";
 
 export const UsersPage = () => {
 
     const {
         users,
-        getUsers,             
+        getUsers,
     } = useContext(MachinTrackContext);
 
     useEffect(() => {
-        getUsers();            
-    }, []);   
-
-    
-    
+        getUsers();
+    }, []);
 
     return (
         <>

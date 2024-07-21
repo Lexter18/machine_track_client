@@ -1,6 +1,7 @@
 import {useEffect, useReducer, useState} from "react";
 import {locationsReducer} from "../reducers/locationsReducer";
 import {listCountries, listDepartments, listMunicipalities} from "../services/locationServices";
+import {ACTION_REDUCER} from "../utils/constants.js";
 
 export const useLocations = () => {
     const [state, dispatch] = useReducer(locationsReducer, {
@@ -17,7 +18,7 @@ export const useLocations = () => {
         const fetchCountries = async () => {
             const countries = await listCountries();
             dispatch({
-                type: 'loadingCountries',
+                type: ACTION_REDUCER.LIST_COUNTRIES,
                 payload: countries
             });
         };
@@ -27,7 +28,7 @@ export const useLocations = () => {
     const fetchDepartments = async (countryId) => {
         const departments = await listDepartments(countryId);
         dispatch({
-            type: 'loadingDepartments',
+            type: ACTION_REDUCER.LIST_DEPARTMENTS,
             payload: departments
         });
         setIsDepartmentDisabled(false);
@@ -36,7 +37,7 @@ export const useLocations = () => {
     const fetchMunicipalities = async (departmentId) => {
         const municipality = await listMunicipalities(departmentId);
         dispatch({
-            type: 'loadingMunicipalities',
+            type: ACTION_REDUCER.LIST_MUNICIPALITIES,
             payload: municipality
         });
         setIsMunicipalityDisabled(false);

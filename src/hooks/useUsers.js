@@ -4,22 +4,23 @@ import {findUsers, saveInitialUser} from "../services/userServices";
 import Swal from "sweetalert2";
 import {Messages} from "../utils/messages.js";
 import {useNavigate} from "react-router-dom";
+import {ACTION_REDUCER} from "../utils/constants.js";
 
-const initialUsers = {
+const initialState = {
+    user: [],
     users: [],
     error: null,
 };
 
 export const useUsers = () => {
-    // const [users, dispatch] = useReducer(usersReducer, initialUsers);
-    const [state, dispatch] = useReducer(usersReducer, initialUsers);
+    const [state, dispatch] = useReducer(usersReducer, initialState);
     const navigate = useNavigate();
 
     const getUsers = async () => {
-        const result = await findUsers();
+        const users = await findUsers();
         dispatch({
-            type: 'loadingUsers',
-            payload: result.data,
+            type: ACTION_REDUCER.LIST_USER_OWNER,
+            payload: users,
         })
     }
 
@@ -28,7 +29,7 @@ export const useUsers = () => {
             const user = await saveInitialUser(userData);
             //console.log("test " + user)
             dispatch({
-                type: 'CREATE_USER_SUCCESS',
+                type: ACTION_REDUCER.CREATE_USER_SUCCESS,
                 payload: user
             });
 
@@ -62,12 +63,15 @@ export const useUsers = () => {
                 );
             }
 
-            dispatch({type: 'CREATE_USER_ERROR', payload: error});
+            dispatch({
+                type: ACTION_REDUCER.CREATE_USER_ERROR,
+                payload: error
+            });
         }
     };
 
     return {
-        state,
+        ...state,
         getUsers,
         createUser,
     }
