@@ -15,9 +15,15 @@ export const validationMessages = {
     },
     identification: {
         required: 'Número de identificacion es obligatorio.',
-        pattern: 'La identificacion debe ser numérico.',
+        pattern: 'La identificacion debe ser numérica.',
         minLength: 'Identificacion debe tener al menos 4 dígitos.',
         maxLength: 'Identificacion debe tener 10 dígitos o menos.',
+    },
+    ownerIdentification: {
+        required: 'Número de identificacion es obligatorio.',
+        pattern: 'La identificacion debe ser numérica.',
+        minLength: 'Identificacion debe tener al menos 4 dígitos.',
+        maxLength: 'Identificacion debe tener 14 dígitos o menos.',
     },
     password: {
         required: 'La contraseña es obligatoria.',
@@ -40,8 +46,18 @@ export const validationMessages = {
     identificationType: {
         required: 'Debe seleccionar un tipo de identificación'
     },
+    ownerIdentificationType: {
+        required: 'Debe seleccionar un tipo de identificación'
+    },
     role: {
         required: 'Debe seleccionar un rol'
+    },
+    userState: {
+        required: 'Debe seleccionar un estado'
+    },
+    ownerName: {
+        required: 'Razon social es obligatoria.',
+        minLength: 'La razon social debe tener al menos 3 letras.',
     }
 
 };

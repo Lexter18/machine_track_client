@@ -3,12 +3,12 @@ import {Link} from "react-router-dom";
 import {ownerMenus} from "./ownerMenus.jsx";
 import {adminMenus} from "./adminMenus.jsx";
 import {ROLES} from "../../utils/constants.js";
+import {getRol} from "../../utils/utils.js";
 
 export const SideBar = () => {
 
     const offcanvasRef = useRef(null);
-    const loginData = JSON.parse(sessionStorage.getItem('login'));
-    const userRole = loginData ? loginData.rol.authority : null;
+    const userRole = getRol()
 
     const closeOffcanvas = () => {
         const offcanvasInstance = bootstrap.Offcanvas.getInstance(offcanvasRef.current);

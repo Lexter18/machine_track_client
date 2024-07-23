@@ -1,19 +1,21 @@
 import {Navigate, Route, Routes} from "react-router-dom"
 import {Navbar} from "../components/layout/Navbar"
 import {MachinTrackProvider} from "../context/MachinTrackProvider"
-import {Home} from "../pages/Home"
 import {SideBar} from "../components/layout/SideBar"
 import {UsersPage} from "../pages/user/manage/UsersPage.jsx"
 import {WorkPage} from "../pages/analysis/operation/WorkPage.jsx";
 import {MachinePage} from "../pages/analysis/operation/MachinePaga.jsx";
 import {OwnerUserPage} from "../pages/user/manageOwners/OwnerUserPage.jsx";
 import {ROLES} from "../utils/constants.js";
-import {ProtectedRoute} from "../utils/ProtectedRoute.jsx";
+import {getRol} from "../utils/utils.js";
+import {ProtectedRoute} from "../utils/routeUtils.jsx";
+import {UserDetails} from "../pages/user/UserDetails.jsx";
+
 
 export const MachinTrackRoutes = () => {
 
-    const loginData = JSON.parse(sessionStorage.getItem('login'));
-    const userRole = loginData ? loginData.rol.authority : null;
+    const userRole = getRol()
+
 
     return (
         <>
@@ -29,6 +31,8 @@ export const MachinTrackRoutes = () => {
                            element={<ProtectedRoute element={MachinePage} roles={[ROLES.OWNER.name]} userRole={userRole}/>}/>
 
                     <Route path="users/owners" element={<ProtectedRoute element={OwnerUserPage} roles={[ROLES.ADMIN.name]}
+                                                                        userRole={userRole}/>}/>
+                    <Route path="users/owners/details/:userId" element={<ProtectedRoute element={UserDetails} roles={[ROLES.ADMIN.name]}
                                                                         userRole={userRole}/>}/>
 
                     <Route path="/*" element={<Navigate to="/home"/>}/>

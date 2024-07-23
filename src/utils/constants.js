@@ -6,6 +6,11 @@ export const IDENTIFICATION_TYPES = [
     {value: 'PEP', label: 'PEP'}
 ];
 
+export const OWNER_IDENTIFICATION_TYPES = [
+    {value: 'NI', label: 'NIT'},
+    {value: 'CC', label: 'CC'}
+];
+
 export const ROLES = {
     ADMIN: {name: 'ROLE_ADMIN', id: 1},
     OPERATOR: {name: 'ROLE_OPERATOR', id: 2},
