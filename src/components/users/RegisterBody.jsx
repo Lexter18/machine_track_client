@@ -1,10 +1,10 @@
 import {useContext, useState} from "react";
 import {Link} from "react-router-dom"
-import {AuthContext} from "../../auth/context/AuthContext";
 import {IDENTIFICATION_TYPES} from "../../utils/constants";
 import {useForm} from "react-hook-form";
 import {validationMessages} from "../../utils/validationMessages.js";
 import {useUsers} from "../../hooks/useUsers.js";
+import {LocationsContext} from "../../context/LocationsContext.jsx";
 
 export const RegisterBody = () => {
 
@@ -18,7 +18,7 @@ export const RegisterBody = () => {
         setIsDepartmentDisabled,
         isMunicipalityDisabled,
         setIsMunicipalityDisabled
-    } = useContext(AuthContext);
+    } = useContext(LocationsContext);
 
     // estado del formulario para validaciones
     const {

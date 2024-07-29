@@ -1,15 +1,7 @@
 import axios from "axios";
+import {config} from "../utils/ServicesUtil.js";
 
 const BASE_URL = 'http://localhost:8080/api/users'
-
-const config = () => {
-    return {
-        headers: {
-            "Authorization": sessionStorage.getItem('token'),
-            "Content-Type": "application/json",
-        }
-    }
-}
 
 export const findUsersByOwner = async () => {
     try {
@@ -32,7 +24,7 @@ export const saveInitialUser = async (userData) => {
 
 export const listRoles = async () => {
     try {
-        const response = await axios.get(BASE_URL + '/roles');
+        const response = await axios.get(BASE_URL + '/roles', config());
         return response.data;
     } catch (error) {
         throw error;

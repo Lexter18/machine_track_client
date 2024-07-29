@@ -1,16 +1,15 @@
-import {useContext, useState} from "react";
+import {useContext, useEffect, useState} from "react";
 import {Link} from "react-router-dom"
 import {AuthContext} from "../../auth/context/AuthContext";
 import {IDENTIFICATION_TYPES, OWNER_IDENTIFICATION_TYPES} from "../../utils/constants";
 import {useForm} from "react-hook-form";
 import {validationMessages} from "../../utils/validationMessages.js";
 import {useUsers} from "../../hooks/useUsers.js";
+import {MachinTrackContext} from "../../context/MachinTrackContext.jsx";
+import {LocationsContext} from "../../context/LocationsContext.jsx";
+import {InputField} from "../common/InputField.jsx";
 
-export const UserForm = () => {
-
-    const roles = []
-    const positions = []
-    const userStates = []
+export const UserForm = ({user}) => {
 
     const {
         countries,
@@ -22,7 +21,13 @@ export const UserForm = () => {
         setIsDepartmentDisabled,
         isMunicipalityDisabled,
         setIsMunicipalityDisabled
-    } = useContext(AuthContext);
+    } = useContext(LocationsContext);
+
+    const {
+        roles,
+        states,
+        positions
+    } = useContext(MachinTrackContext);
 
     // estado del formulario para validaciones
     const {
@@ -33,13 +38,39 @@ export const UserForm = () => {
         watch,
         setValue
     } = useForm({mode: 'onChange'});
-    const {createUser} = useUsers();
+
+    // const {createUser} = useUsers();
+
+    useEffect(() => {
+        if (user) {
+            setValue('firstName', user.employee.firstName);
+            setValue('middleName', user.employee.middleName);
+            setValue('firstSurname', user.employee.firstSurname);
+            setValue('secondSurname', user.employee.secondSurname);
+            setValue('email', user.employee.email);
+            setValue('phone', user.employee.phone);
+            setValue('identificationType', user.employee.identificationType);
+            setValue('identification', user.employee.identification);
+            setValue('idLocation', user.employee.municipality.department.country.idLocation);
+            // setValue('idDepartment', user.employee.municipality.department.idDepartment);
+            setValue('positions', user.employee.position.idPosition);
+            setValue('username', user.userName);
+            setValue('username', user.userName);
+            setValue('role', user.role.idRole);
+            setValue('userStates', user.state.idState);
+            setValue('ownerName', user.owner.owner);
+            setValue('ownerIdentificationType', user.owner.identificationType);
+            setValue('ownerIdentification', user.owner.identification);
+
+        }
+    }, [user, setValue]);
 
     const [selectedCountry, setSelectedCountry] = useState(undefined);
     const [selectedDepartment, setSelectedDepartment] = useState("0");
     const password = watch('password');
 
-    // console.log("ROLES = ", JSON.stringify(roles, null, 2))
+    console.log("USER = ", JSON.stringify(user, null, 2))
+    console.log("ROLES = ", JSON.stringify(roles, null, 2))
     // console.log("CONUNTRY = ", JSON.stringify(countries, null, 2))
 
     const handleCountryChange = (event) => {
@@ -63,7 +94,7 @@ export const UserForm = () => {
     };
 
     const onSubmit = async (data) => {
-        console.log(data);
+        console.log("LES " + data);
         //await createUser(data);
     }
 
@@ -100,125 +131,109 @@ export const UserForm = () => {
                                     <div className="card-body p-4 mt-4 ">
                                         <form className="row g-3" onSubmit={handleSubmit(onSubmit)}>
 
-
                                             <h5 className="card-title widget-card-title m-0 fs-4">Empleado</h5>
                                             <div className="col-md-6">
-                                                <div className="form-floating mb-3">
-                                                    <input type="text"
-                                                           className={`form-control form-control-sm ${errors.firstName ? 'is-invalid' : ''}`}
-                                                           name="firstName"
-                                                           id="firstName"
-                                                           placeholder="Primer Nombre"
-                                                           {...register('firstName', {required: true, minLength: 3})}
-                                                           onBlur={() => trigger('firstName')}
-                                                    />
-
-                                                    <label htmlFor="firstName" className="form-label">Primer
-                                                        Nombre </label>
-                                                    {errors.firstName && <div className="invalid-feedback">
-                                                        {errors.firstName.type === 'required' && validationMessages.firstName.required}
-                                                        {errors.firstName.type === 'minLength' && validationMessages.firstName.minLength}
-                                                    </div>}
-
-                                                </div>
+                                                <InputField
+                                                    type="text"
+                                                    label="Primer Nombre"
+                                                    name="firstName"
+                                                    register={register}
+                                                    errors={errors}
+                                                    trigger={trigger}
+                                                    validationRules={{
+                                                        required: validationMessages.firstName.required,
+                                                        minLength: {
+                                                            value: 3,
+                                                            message: validationMessages.firstName.minLength
+                                                        }
+                                                    }}
+                                                />
                                             </div>
 
                                             <div className="col-md-6">
-                                                <div className="form-floating mb-3">
-                                                    <input type="text"
-                                                           className="form-control"
-                                                           name="middleName"
-                                                           id="middleName"
-                                                           placeholder="Segundo Nombre"
-                                                           {...register('middleName')}
-                                                    />
-                                                    <label htmlFor="middleName" className="form-label">Segundo
-                                                        Nombre</label>
-                                                </div>
+                                                <InputField
+                                                    type="text"
+                                                    label="Segundo Nombre"
+                                                    name="middleName"
+                                                    register={register}
+                                                    errors={errors}
+                                                    trigger={trigger}
+                                                    validationRules={{}}
+                                                />
                                             </div>
 
                                             <div className="col-md-6">
-                                                <div className="form-floating mb-3">
-                                                    <input
-                                                        type="text"
-                                                        className={`form-control ${errors.firstSurname ? 'is-invalid' : ''}`}
-                                                        name="firstSurname"
-                                                        id="firstSurname"
-                                                        placeholder="Primer Apellido"
-                                                        {...register('firstSurname', {required: true, minLength: 3})}
-                                                        onBlur={() => trigger('firstSurname')}
-                                                    />
-                                                    <label htmlFor="firstSurname" className="form-label">Primer
-                                                        Apellido</label>
-                                                    {errors.firstSurname && <div className="invalid-feedback">
-                                                        {errors.firstSurname.type === 'required' && validationMessages.firstSurname.required}
-                                                        {errors.firstSurname.type === 'minLength' && validationMessages.firstSurname.minLength}
-                                                    </div>}
-                                                </div>
+                                                <InputField
+                                                    type="text"
+                                                    label="Primer Apellido"
+                                                    name="firstSurname"
+                                                    register={register}
+                                                    errors={errors}
+                                                    trigger={trigger}
+                                                    validationRules={{
+                                                        required: validationMessages.firstSurname.required,
+                                                        minLength: {
+                                                            value: 3,
+                                                            message: validationMessages.firstSurname.minLength
+                                                        }
+                                                    }}
+                                                />
                                             </div>
 
                                             <div className="col-md-6">
-                                                <div className="form-floating mb-3">
-                                                    <input type="text"
-                                                           className="form-control"
-                                                           name="secondSurname"
-                                                           id="secondSurname"
-                                                           placeholder="Segundo Apellido"
-                                                           {...register('secondSurname')}
-                                                    />
-                                                    <label htmlFor="secondSurname"
-                                                           className="form-label">Segundo Apellido</label>
-                                                </div>
+                                                <InputField
+                                                    type="text"
+                                                    label="Segundo Apellido"
+                                                    name="secondSurname"
+                                                    register={register}
+                                                    errors={errors}
+                                                    trigger={trigger}
+                                                    validationRules={{}}
+                                                />
                                             </div>
 
                                             <div className="col-md-3">
-                                                <div className="form-floating mb-3">
-                                                    <input
-                                                        type="email"
-                                                        className={`form-control ${errors.email ? 'is-invalid' : ''}`}
-                                                        name="email"
-                                                        id="email"
-                                                        placeholder="name@example.com"
-                                                        {...register('email', {
-                                                            required: validationMessages.email.required,
-                                                            pattern: {
-                                                                value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
-                                                                message: validationMessages.email.pattern
-                                                            }
-                                                        })}
-                                                        onBlur={() => trigger('email')}
-                                                    />
-                                                    <label htmlFor="email" className="form-label">Email</label>
-                                                    {errors.email && <div className="invalid-feedback">
-                                                        {errors.email.message}
-                                                    </div>}
-                                                </div>
+                                                <InputField
+                                                    type="email"
+                                                    label="Email"
+                                                    name="email"
+                                                    register={register}
+                                                    errors={errors}
+                                                    trigger={trigger}
+                                                    validationRules={{
+                                                        required: validationMessages.email.required,
+                                                        pattern: {
+                                                            value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+                                                            message: validationMessages.email.pattern
+                                                        }
+                                                    }}
+                                                />
                                             </div>
 
                                             <div className="col-md-3">
-                                                <div className="form-floating mb-3">
-                                                    <input
-                                                        type="text"
-                                                        className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
-                                                        name="phone"
-                                                        id="phone"
-                                                        placeholder="# Celular"
-                                                        {...register('phone', {
-                                                            required: true,
-                                                            pattern: /^[0-9]+$/,
-                                                            minLength: 10,
-                                                            maxLength: 10
-                                                        })}
-                                                        onBlur={() => trigger('phone')}
-                                                    />
-                                                    <label htmlFor="phone" className="form-label"># Celular</label>
-                                                    {errors.phone && <div className="invalid-feedback">
-                                                        {errors.phone.type === 'required' && validationMessages.phone.required}
-                                                        {errors.phone.type === 'pattern' && validationMessages.phone.pattern}
-                                                        {errors.phone.type === 'minLength' && validationMessages.phone.minLength}
-                                                        {errors.phone.type === 'maxLength' && validationMessages.phone.maxLength}
-                                                    </div>}
-                                                </div>
+                                                <InputField
+                                                    type="text"
+                                                    label="# Celular"
+                                                    name="phone"
+                                                    register={register}
+                                                    errors={errors}
+                                                    trigger={trigger}
+                                                    validationRules={{
+                                                        required: validationMessages.phone.required,
+                                                        pattern: {
+                                                            value: /^[0-9]+$/,
+                                                            message: validationMessages.phone.pattern
+                                                        },
+                                                        minLength: {
+                                                            value: 10,
+                                                            message: validationMessages.phone.minLength
+                                                        },
+                                                        maxLength: {
+                                                            value: 10,
+                                                            message: validationMessages.phone.maxLength
+                                                        }
+                                                    }}
+                                                />
                                             </div>
 
                                             <div className="col-md-3">
@@ -250,31 +265,30 @@ export const UserForm = () => {
                                             </div>
 
                                             <div className="col-md-3">
-                                                <div className="form-floating mb-3">
+                                                <InputField
+                                                    type="text"
+                                                    label="Numero Identificacion"
+                                                    name="identification"
+                                                    register={register}
+                                                    errors={errors}
+                                                    trigger={trigger}
+                                                    validationRules={{
+                                                        required: validationMessages.identification.required,
+                                                        pattern: {
+                                                            value: /^[0-9]+$/,
+                                                            message: validationMessages.identification.pattern
+                                                        },
+                                                        minLength: {
+                                                            value: 4,
+                                                            message: validationMessages.identification.minLength
+                                                        },
+                                                        maxLength: {
+                                                            value: 10,
+                                                            message: validationMessages.identification.maxLength
+                                                        }
+                                                    }}
+                                                />
 
-                                                    <input
-                                                        type="text"
-                                                        className={`form-control ${errors.identification ? 'is-invalid' : ''}`}
-                                                        name="identification"
-                                                        id="identification"
-                                                        placeholder="Numero Identificacion"
-                                                        {...register('identification', {
-                                                            required: true,
-                                                            pattern: /^[0-9]+$/,
-                                                            minLength: 4,
-                                                            maxLength: 10
-                                                        })}
-                                                        onBlur={() => trigger('identification')}
-                                                    />
-                                                    <label htmlFor="identification" className="form-label">Numero
-                                                        Identificacion</label>
-                                                    {errors.identification && <div className="invalid-feedback">
-                                                        {errors.identification.type === 'required' && validationMessages.identification.required}
-                                                        {errors.identification.type === 'pattern' && validationMessages.identification.pattern}
-                                                        {errors.identification.type === 'minLength' && validationMessages.identification.minLength}
-                                                        {errors.identification.type === 'maxLength' && validationMessages.identification.maxLength}
-                                                    </div>}
-                                                </div>
                                             </div>
 
                                             <div className="col-md-3">
@@ -283,6 +297,7 @@ export const UserForm = () => {
                                                         className={`form-select mb-3 ${
                                                             selectedCountry === "0" ? "is-invalid" : ""
                                                         }`}
+                                                        {...register('idLocation')}
                                                         value={selectedCountry}
                                                         onChange={handleCountryChange}
                                                     >
@@ -307,6 +322,7 @@ export const UserForm = () => {
                                                     <select
                                                         className="form-select mb-3" disabled={isDepartmentDisabled}
                                                         value={selectedDepartment}
+                                                        {...register('idDepartment')}
                                                         onChange={handleDepartmentChange}
                                                     >
                                                         <option value="0">Seleccione</option>
@@ -373,31 +389,25 @@ export const UserForm = () => {
                                             <h5 className="card-title widget-card-title m-0 fs-4 mt-4">Usuario</h5>
 
                                             <div className="col-md-4">
-                                                <div className="form-floating mb-3">
-                                                    <input
-                                                        type="text"
-                                                        className={`form-control ${errors.username ? 'is-invalid' : ''}`}
-                                                        name="username"
-                                                        id="username"
-                                                        placeholder="Usuario"
-                                                        {...register('username', {
-                                                            required: validationMessages.username.required,
-                                                            minLength: {
-                                                                value: 4,
-                                                                message: validationMessages.username.minLength
-                                                            },
-                                                            maxLength: {
-                                                                value: 20,
-                                                                message: validationMessages.username.maxLength
-                                                            }
-                                                        })}
-                                                        onBlur={() => trigger('username')}
-                                                    />
-                                                    <label htmlFor="username" className="form-label">Usuario</label>
-                                                    {errors.username && <div className="invalid-feedback">
-                                                        {errors.username.message}
-                                                    </div>}
-                                                </div>
+                                                <InputField
+                                                    type="text"
+                                                    label="Usuario"
+                                                    name="username"
+                                                    register={register}
+                                                    errors={errors}
+                                                    trigger={trigger}
+                                                    validationRules={{
+                                                        required: validationMessages.username.required,
+                                                        minLength: {
+                                                            value: 4,
+                                                            message: validationMessages.username.minLength
+                                                        },
+                                                        maxLength: {
+                                                            value: 20,
+                                                            message: validationMessages.username.maxLength
+                                                        }
+                                                    }}
+                                                />
                                             </div>
 
 
@@ -417,7 +427,7 @@ export const UserForm = () => {
                                                         <option value="0">Seleccione</option>
                                                         {roles.map((role) => (
                                                             <option key={role.idRole}
-                                                                    value={role.idRole}>{role.role}</option>
+                                                                    value={role.idRole}>{role.roleDescription}</option>
                                                         ))}
                                                     </select>
                                                     <label className="form-label">Rol</label>
@@ -443,7 +453,7 @@ export const UserForm = () => {
                                                         })}
                                                         defaultValue="0">
                                                         <option value="0">Seleccione</option>
-                                                        {userStates.map((state) => (
+                                                        {states.map((state) => (
                                                             <option key={state.idState}
                                                                     value={state.idState}>{state.state}</option>
                                                         ))}
@@ -458,74 +468,60 @@ export const UserForm = () => {
                                             </div>
 
                                             <div className="col-md-6">
-                                                <div className="form-floating mb-3 position-relative">
-                                                    <input
-                                                        type="password"
-                                                        className={`form-control ${errors.password ? 'is-invalid' : ''}`}
-                                                        name="password"
-                                                        id="password"
-                                                        placeholder="Password"
-                                                        {...register('password', {
-                                                            required: true,
-                                                            minLength: 8,
-                                                            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/
-                                                        })}
-                                                        onBlur={() => trigger('password')}
-                                                    />
-                                                    <label htmlFor="password" className="form-label">Password</label>
-                                                    {errors.password && <div className="invalid-feedback">
-                                                        {errors.password.type === 'required' && validationMessages.password.required}
-                                                        {errors.password.type === 'minLength' && validationMessages.password.minLength}
-                                                        {errors.password.type === 'pattern' && validationMessages.password.pattern}
-                                                    </div>}
-
-                                                </div>
+                                                <InputField
+                                                    type="password"
+                                                    label="Password"
+                                                    name="password"
+                                                    register={register}
+                                                    errors={errors}
+                                                    trigger={trigger}
+                                                    validationRules={{
+                                                        required: validationMessages.password.required,
+                                                        minLength: {
+                                                            value: 8,
+                                                            message: validationMessages.password.minLength
+                                                        },
+                                                        pattern: {
+                                                            value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/,
+                                                            message: validationMessages.password.pattern
+                                                        }
+                                                    }}
+                                                />
                                             </div>
 
                                             <div className="col-md-6">
-                                                <div className="form-floating mb-3">
-                                                    <input
-                                                        type="password"
-                                                        className={`form-control ${errors.confirmPassword ? 'is-invalid' : ''}`}
-                                                        name="confirmPassword"
-                                                        id="confirmpassword"
-                                                        placeholder="Confirmar Password"
-                                                        {...register('confirmPassword', {
-                                                            required: true,
-                                                            validate: value => value === password || validationMessages.confirmPassword.match
-                                                        })}
-                                                        onBlur={() => trigger('confirmPassword')}
-                                                    />
-                                                    <label htmlFor="confirmpassword" className="form-label">Confirmar
-                                                        Password</label>
-                                                    {errors.confirmPassword && <div className="invalid-feedback">
-                                                        {errors.confirmPassword.type === 'required' && validationMessages.confirmPassword.required}
-                                                        {errors.confirmPassword.type === 'validate' && validationMessages.confirmPassword.match}
-                                                    </div>}
-                                                </div>
+                                                <InputField
+                                                    type="password"
+                                                    label="Confirmar Password"
+                                                    name="confirmPassword"
+                                                    register={register}
+                                                    errors={errors}
+                                                    trigger={trigger}
+                                                    validationRules={{
+                                                        required: validationMessages.password.required,
+                                                        validate: value => value === password || validationMessages.confirmPassword.match
+                                                    }}
+                                                />
                                             </div>
 
                                             <h5 className="card-title widget-card-title m-0 fs-4 mt-4">Propietario</h5>
 
                                             <div className="col-md-6">
-                                                <div className="form-floating mb-3">
-                                                    <input type="text"
-                                                           className={`form-control form-control-sm ${errors.ownerName ? 'is-invalid' : ''}`}
-                                                           name="ownerName"
-                                                           id="ownerName"
-                                                           placeholder="Nombre / Razon Social"
-                                                           {...register('ownerName', {required: true, minLength: 3})}
-                                                           onBlur={() => trigger('ownerName')}
-                                                    />
-
-                                                    <label htmlFor="ownerName" className="form-label">Nombre / Razon
-                                                        Social </label>
-                                                    {errors.ownerName && <div className="invalid-feedback">
-                                                        {errors.ownerName.type === 'required' && validationMessages.ownerName.required}
-                                                        {errors.ownerName.type === 'minLength' && validationMessages.ownerName.minLength}
-                                                    </div>}
-
-                                                </div>
+                                                <InputField
+                                                    type="text"
+                                                    label="Nombre / Razon Social"
+                                                    name="ownerName"
+                                                    register={register}
+                                                    errors={errors}
+                                                    trigger={trigger}
+                                                    validationRules={{
+                                                        required: validationMessages.ownerName.required,
+                                                        minLength: {
+                                                            value: 3,
+                                                            message: validationMessages.ownerName.minLength
+                                                        }
+                                                    }}
+                                                />
                                             </div>
 
                                             <div className="col-md-3">
@@ -556,31 +552,30 @@ export const UserForm = () => {
                                             </div>
 
                                             <div className="col-md-3">
-                                                <div className="form-floating mb-3">
+                                                <InputField
+                                                    type="text"
+                                                    label="Numero Identificacion"
+                                                    name="ownerIdentification"
+                                                    register={register}
+                                                    errors={errors}
+                                                    trigger={trigger}
+                                                    validationRules={{
+                                                        required: validationMessages.ownerIdentification.required,
+                                                        pattern: {
+                                                            value: /^[-0-9]+$/,
+                                                            message: validationMessages.ownerIdentification.pattern
+                                                        },
+                                                        minLength: {
+                                                            value: 4,
+                                                            message: validationMessages.ownerIdentification.minLength
+                                                        },
+                                                        maxLength: {
+                                                            value: 15,
+                                                            message: validationMessages.ownerIdentification.maxLength
+                                                        }
+                                                    }}
+                                                />
 
-                                                    <input
-                                                        type="text"
-                                                        className={`form-control ${errors.ownerIdentification ? 'is-invalid' : ''}`}
-                                                        name="ownerIdentification"
-                                                        id="ownerIdentification"
-                                                        placeholder="Numero Identificacion"
-                                                        {...register('ownerIdentification', {
-                                                            required: true,
-                                                            pattern: /^[-0-9]+$/,
-                                                            minLength: 4,
-                                                            maxLength: 15
-                                                        })}
-                                                        onBlur={() => trigger('ownerIdentification')}
-                                                    />
-                                                    <label htmlFor="ownerIdentification" className="form-label">Numero
-                                                        Identificacion</label>
-                                                    {errors.ownerIdentification && <div className="invalid-feedback">
-                                                        {errors.ownerIdentification.type === 'required' && validationMessages.ownerIdentification.required}
-                                                        {errors.ownerIdentification.type === 'pattern' && validationMessages.ownerIdentification.pattern}
-                                                        {errors.ownerIdentification.type === 'minLength' && validationMessages.ownerIdentification.minLength}
-                                                        {errors.ownerIdentification.type === 'maxLength' && validationMessages.ownerIdentification.maxLength}
-                                                    </div>}
-                                                </div>
                                             </div>
 
                                             <div className="col-12">
@@ -588,7 +583,8 @@ export const UserForm = () => {
                                                     <button
                                                         className="btn btn-primary btn-lg"
                                                         type="submit"
-                                                        disabled={!isValid}>
+                                                        disabled={!isValid}
+                                                    >
                                                         Guardar
                                                     </button>
                                                 </div>

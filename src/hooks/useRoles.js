@@ -22,6 +22,6 @@ export const useRoles = () => {
 
     return {
         ...state
-    }
+    };
 
 }

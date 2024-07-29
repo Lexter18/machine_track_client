@@ -23,7 +23,7 @@ export const validationMessages = {
         required: 'Número de identificacion es obligatorio.',
         pattern: 'La identificacion debe ser numérica.',
         minLength: 'Identificacion debe tener al menos 4 dígitos.',
-        maxLength: 'Identificacion debe tener 14 dígitos o menos.',
+        maxLength: 'Identificacion debe tener 15 dígitos o menos.',
     },
     password: {
         required: 'La contraseña es obligatoria.',

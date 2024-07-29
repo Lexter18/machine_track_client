@@ -1,4 +1,4 @@
-import {Link, NavLink} from "react-router-dom";
+import {Link} from "react-router-dom";
 
 
 export const UserRow = ({user}) => {
@@ -17,6 +17,7 @@ export const UserRow = ({user}) => {
             <td>
                 <Link to={"details/" + user.idUser}
                       className="bi bi-pencil-fill"
+                      state={{user}}
                 >
 
                 </Link>

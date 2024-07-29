@@ -7,7 +7,7 @@ export const IDENTIFICATION_TYPES = [
 ];
 
 export const OWNER_IDENTIFICATION_TYPES = [
-    {value: 'NI', label: 'NIT'},
+    {value: 'NIT', label: 'NIT'},
     {value: 'CC', label: 'CC'}
 ];
 
@@ -28,7 +28,9 @@ export const ACTION_REDUCER = {
     LIST_DEPARTMENTS: 'LIST_DEPARTMENTS',
     LIST_MUNICIPALITIES: 'LIST_MUNICIPALITIES',
 
-    LIST_ROLES: 'LIST_ROLES'
+    LIST_ROLES: 'LIST_ROLES',
+    LIST_STATE: 'LIST_STATE',
+    LIST_POSITIONS: 'LIST_POSITIONS'
 
 
 };
