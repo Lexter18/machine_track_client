@@ -41,37 +41,41 @@ export const UserForm = ({user}) => {
 
     // const {createUser} = useUsers();
 
-    useEffect(() => {
-        if (user) {
-            setValue('firstName', user.employee.firstName);
-            setValue('middleName', user.employee.middleName);
-            setValue('firstSurname', user.employee.firstSurname);
-            setValue('secondSurname', user.employee.secondSurname);
-            setValue('email', user.employee.email);
-            setValue('phone', user.employee.phone);
-            setValue('identificationType', user.employee.identificationType);
-            setValue('identification', user.employee.identification);
-            setValue('idLocation', user.employee.municipality.department.country.idLocation);
-            // setValue('idDepartment', user.employee.municipality.department.idDepartment);
-            setValue('positions', user.employee.position.idPosition);
-            setValue('username', user.userName);
-            setValue('username', user.userName);
-            setValue('role', user.role.idRole);
-            setValue('userStates', user.state.idState);
-            setValue('ownerName', user.owner.owner);
-            setValue('ownerIdentificationType', user.owner.identificationType);
-            setValue('ownerIdentification', user.owner.identification);
 
-        }
-    }, [user, setValue]);
+    const [selectedCountry, setSelectedCountry] = useState(user ?
+        user.employee.municipality.department.country.idLocation : '');
+    const [selectedDepartment, setSelectedDepartment] = useState(user ?
+        user.employee.municipality.department.idDepartment : '');
+    const [selectedMunicipality, setSelectedMunicipality] = useState(user ?
+        user.employee.municipality.idMunicipality : '');
+    const [selectedRole, setSelectedRole] = useState(user ? user.role.idRole : '');
+    const [selectedPosition, setSelectedPosition] = useState(user ?
+        user.employee.position.idPosition : '');
+    const [selectedUserStates, setSelectedUserStates] = useState(user ?
+        user.state.idState : '');
+    const [isFormInitialized, setIsFormInitialized] = useState(false);
 
-    const [selectedCountry, setSelectedCountry] = useState(undefined);
-    const [selectedDepartment, setSelectedDepartment] = useState("0");
     const password = watch('password');
+    const isEditing = !!user;
 
-    console.log("USER = ", JSON.stringify(user, null, 2))
-    console.log("ROLES = ", JSON.stringify(roles, null, 2))
+
+    // console.log("USER = ", JSON.stringify(user, null, 2))
+    // console.log("ROLES = ", JSON.stringify(roles, null, 2))
     // console.log("CONUNTRY = ", JSON.stringify(countries, null, 2))
+
+
+    useEffect(() => {
+        if (selectedCountry) {
+            fetchDepartments(selectedCountry);
+        }
+    }, [selectedCountry]);
+
+    useEffect(() => {
+        if (selectedDepartment) {
+            fetchMunicipalities(selectedDepartment);
+        }
+    }, [selectedDepartment]);
+
 
     const handleCountryChange = (event) => {
         const countryId = event.target.value;
@@ -93,8 +97,39 @@ export const UserForm = ({user}) => {
         }
     };
 
+    useEffect(() => {
+        if (isEditing && !isFormInitialized) {
+            setValue('firstName', user.employee.firstName);
+            setValue('middleName', user.employee.middleName);
+            setValue('firstSurname', user.employee.firstSurname);
+            setValue('secondSurname', user.employee.secondSurname);
+            setValue('email', user.employee.email);
+            setValue('phone', user.employee.phone);
+            setValue('identificationType', user.employee.identificationType);
+            setValue('identification', user.employee.identification);
+            setValue('idLocation', selectedCountry);
+            setValue('idDepartment', selectedDepartment);
+            setValue('idMunicipality', selectedMunicipality);
+            setValue('positions', selectedPosition);
+            setValue('username', user.userName);
+            setValue('role', selectedRole);
+            setValue('userStates', selectedUserStates);
+            setValue('ownerName', user.owner.owner || '');
+            setValue('ownerIdentificationType', user.owner.identificationType || '0');
+            setValue('ownerIdentification', user.owner.identification || '');
+            setIsFormInitialized(true);
+            trigger();
+        }
+    }, [user, setValue, selectedCountry, selectedDepartment, selectedRole, selectedMunicipality,
+        selectedPosition, selectedUserStates, trigger]);
+
     const onSubmit = async (data) => {
-        console.log("LES " + data);
+        if (isEditing && user) {
+            data.idUser = user.idUser;
+            data.idEmployee = user.employee.idEmployee;
+            // data.idOwner = user.owner.idOwner;
+        }
+        console.log("USER = ", JSON.stringify(data, null, 2))
         //await createUser(data);
     }
 
@@ -341,9 +376,10 @@ export const UserForm = ({user}) => {
                                                 <div className="form-floating mb-3">
                                                     <select
                                                         className="form-select mb-3"
-                                                        defaultValue="0"
-                                                        disabled={isMunicipalityDisabled}
                                                         {...register('idMunicipality')}
+                                                        onChange={(e) => setSelectedMunicipality(e.target.value)}
+                                                        value={selectedMunicipality}
+                                                        disabled={isMunicipalityDisabled}
                                                     >
                                                         <option value="0">Seleccione</option>
                                                         {municipalities.map((municipality) => (
@@ -369,7 +405,9 @@ export const UserForm = ({user}) => {
                                                                 notZero: (value) => value !== "0",
                                                             },
                                                         })}
-                                                        defaultValue="0">
+                                                        onChange={(e) => setSelectedPosition(e.target.value)}
+                                                        value={selectedPosition}
+                                                    >
                                                         <option value="0">Seleccione</option>
                                                         {positions.map((position) => (
                                                             <option key={position.idPosition}
@@ -423,7 +461,9 @@ export const UserForm = ({user}) => {
                                                                 notZero: (value) => value !== "0",
                                                             },
                                                         })}
-                                                        defaultValue="0">
+                                                        onChange={(e) => setSelectedRole(e.target.value)}
+                                                        value={selectedRole}
+                                                    >
                                                         <option value="0">Seleccione</option>
                                                         {roles.map((role) => (
                                                             <option key={role.idRole}
@@ -451,7 +491,9 @@ export const UserForm = ({user}) => {
                                                                 notZero: (value) => value !== "0",
                                                             },
                                                         })}
-                                                        defaultValue="0">
+                                                        onChange={(e) => setSelectedUserStates(e.target.value)}
+                                                        value={selectedUserStates}
+                                                    >
                                                         <option value="0">Seleccione</option>
                                                         {states.map((state) => (
                                                             <option key={state.idState}
@@ -467,42 +509,49 @@ export const UserForm = ({user}) => {
                                                 </div>
                                             </div>
 
-                                            <div className="col-md-6">
-                                                <InputField
-                                                    type="password"
-                                                    label="Password"
-                                                    name="password"
-                                                    register={register}
-                                                    errors={errors}
-                                                    trigger={trigger}
-                                                    validationRules={{
-                                                        required: validationMessages.password.required,
-                                                        minLength: {
-                                                            value: 8,
-                                                            message: validationMessages.password.minLength
-                                                        },
-                                                        pattern: {
-                                                            value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/,
-                                                            message: validationMessages.password.pattern
-                                                        }
-                                                    }}
-                                                />
-                                            </div>
+                                            {!isEditing && (
+                                                <>
+                                                    <div className="col-md-6">
+                                                        <InputField
+                                                            type="password"
+                                                            label="Password"
+                                                            name="password"
+                                                            register={register}
+                                                            errors={errors}
+                                                            trigger={trigger}
+                                                            validationRules={{
+                                                                required: validationMessages.password.required,
+                                                                minLength: {
+                                                                    value: 8,
+                                                                    message: validationMessages.password.minLength
+                                                                },
+                                                                pattern: {
+                                                                    value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/,
+                                                                    message: validationMessages.password.pattern
+                                                                }
+                                                            }}
+                                                        />
+                                                    </div>
 
-                                            <div className="col-md-6">
-                                                <InputField
-                                                    type="password"
-                                                    label="Confirmar Password"
-                                                    name="confirmPassword"
-                                                    register={register}
-                                                    errors={errors}
-                                                    trigger={trigger}
-                                                    validationRules={{
-                                                        required: validationMessages.password.required,
-                                                        validate: value => value === password || validationMessages.confirmPassword.match
-                                                    }}
-                                                />
-                                            </div>
+                                                    <div className="col-md-6">
+                                                        <InputField
+                                                            type="password"
+                                                            label="Confirmar Password"
+                                                            name="confirmPassword"
+                                                            register={register}
+                                                            errors={errors}
+                                                            trigger={trigger}
+                                                            validationRules={{
+                                                                required: validationMessages.password.required,
+                                                                validate: value => value === password || validationMessages.confirmPassword.match
+                                                            }}
+                                                        />
+                                                    </div>
+
+                                                </>
+
+                                            )}
+
 
                                             <h5 className="card-title widget-card-title m-0 fs-4 mt-4">Propietario</h5>
 
@@ -535,7 +584,8 @@ export const UserForm = ({user}) => {
                                                                 notZero: (value) => value !== "0",
                                                             },
                                                         })}
-                                                        defaultValue="0">
+                                                        defaultValue={user?.owner?.identificationType || "0"}
+                                                    >
                                                         <option value="0">Seleccione</option>
                                                         {OWNER_IDENTIFICATION_TYPES.map((type) => (
                                                             <option key={type.value}
