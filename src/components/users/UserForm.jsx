@@ -8,6 +8,7 @@ import {useUsers} from "../../hooks/useUsers.js";
 import {MachinTrackContext} from "../../context/MachinTrackContext.jsx";
 import {LocationsContext} from "../../context/LocationsContext.jsx";
 import {InputField} from "../common/InputField.jsx";
+import {OwnerSearchModal} from "./OwnerSearchModal.jsx";
 
 export const UserForm = ({user}) => {
 
@@ -58,6 +59,22 @@ export const UserForm = ({user}) => {
     const password = watch('password');
     const isEditing = !!user;
 
+    // MODAL DEL OWNERS
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedOwner, setSelectedOwner] = useState({
+        name: user ? user.owner.owner : '',
+        identificationType: user ? user.owner.identificationType : '',
+        identification: user ? user.owner.identification : ''
+    });
+    const handleOpenModal = () => setIsModalOpen(true);
+    const handleCloseModal = () => setIsModalOpen(false);
+    const handleSelectOwner = (owner) => {
+        setSelectedOwner(owner);
+        setValue('ownerName', owner.name);
+        setValue('ownerIdentificationType', owner.identificationType);
+        setValue('ownerIdentification', owner.identification);
+    };
+
 
     // console.log("USER = ", JSON.stringify(user, null, 2))
     // console.log("ROLES = ", JSON.stringify(roles, null, 2))
@@ -75,6 +92,16 @@ export const UserForm = ({user}) => {
             fetchMunicipalities(selectedDepartment);
         }
     }, [selectedDepartment]);
+
+    useEffect(() => {
+        if (user) {
+            setSelectedOwner({
+                name: user.owner.owner,
+                identificationType: user.owner.identificationType,
+                identification: user.owner.identification
+            });
+        }
+    }, [user]);
 
 
     const handleCountryChange = (event) => {
@@ -396,8 +423,7 @@ export const UserForm = ({user}) => {
                                             <div className="col-md-3">
                                                 <div className="form-floating mb-3">
                                                     <select
-                                                        className={`form-select mb-3 ${
-                                                            errors.positions ? "is-invalid" : ""
+                                                        className={`form-select mb-3 ${selectedPosition === "0" ? "is-invalid" : ""
                                                         }`}
                                                         {...register("positions", {
                                                             required: true,
@@ -415,7 +441,7 @@ export const UserForm = ({user}) => {
                                                         ))}
                                                     </select>
                                                     <label className="form-label">Cargo</label>
-                                                    {errors.role && (
+                                                    {selectedPosition === "0" && (
                                                         <div className="invalid-feedback">
                                                             {validationMessages.role.required}
                                                         </div>
@@ -452,8 +478,7 @@ export const UserForm = ({user}) => {
                                             <div className="col-md-4">
                                                 <div className="form-floating mb-3">
                                                     <select
-                                                        className={`form-select mb-3 ${
-                                                            errors.role ? "is-invalid" : ""
+                                                        className={`form-select mb-3 ${selectedRole === "0" ? "is-invalid" : ""
                                                         }`}
                                                         {...register("role", {
                                                             required: true,
@@ -471,7 +496,7 @@ export const UserForm = ({user}) => {
                                                         ))}
                                                     </select>
                                                     <label className="form-label">Rol</label>
-                                                    {errors.role && (
+                                                    {selectedRole === "0" && (
                                                         <div className="invalid-feedback">
                                                             {validationMessages.role.required}
                                                         </div>
@@ -483,7 +508,7 @@ export const UserForm = ({user}) => {
                                                 <div className="form-floating mb-3">
                                                     <select
                                                         className={`form-select mb-3 ${
-                                                            errors.userStates ? "is-invalid" : ""
+                                                            selectedUserStates === "0" ? "is-invalid" : ""
                                                         }`}
                                                         {...register("userStates", {
                                                             required: true,
@@ -501,7 +526,7 @@ export const UserForm = ({user}) => {
                                                         ))}
                                                     </select>
                                                     <label className="form-label">Estado</label>
-                                                    {errors.userStates && (
+                                                    {selectedUserStates === "0" && (
                                                         <div className="invalid-feedback">
                                                             {validationMessages.userState.required}
                                                         </div>
@@ -556,22 +581,50 @@ export const UserForm = ({user}) => {
                                             <h5 className="card-title widget-card-title m-0 fs-4 mt-4">Propietario</h5>
 
                                             <div className="col-md-6">
-                                                <InputField
-                                                    type="text"
-                                                    label="Nombre / Razon Social"
-                                                    name="ownerName"
-                                                    register={register}
-                                                    errors={errors}
-                                                    trigger={trigger}
-                                                    validationRules={{
-                                                        required: validationMessages.ownerName.required,
-                                                        minLength: {
-                                                            value: 3,
-                                                            message: validationMessages.ownerName.minLength
-                                                        }
-                                                    }}
-                                                />
+                                                {/*<InputField*/}
+                                                {/*    type="text"*/}
+                                                {/*    label="Nombre / Razon Social"*/}
+                                                {/*    name="ownerName"*/}
+                                                {/*    register={register}*/}
+                                                {/*    errors={errors}*/}
+                                                {/*    trigger={trigger}*/}
+                                                {/*    validationRules={{*/}
+                                                {/*        required: validationMessages.ownerName.required,*/}
+                                                {/*        minLength: {*/}
+                                                {/*            value: 3,*/}
+                                                {/*            message: validationMessages.ownerName.minLength*/}
+                                                {/*        }*/}
+                                                {/*    }}*/}
+                                                {/*/>*/}
+
+                                                <div className="form-floating mb-3">
+                                                    <input type="text"
+                                                           className={`form-control form-control-sm ${errors.ownerName ? 'is-invalid' : ''}`}
+                                                           name="ownerName"
+                                                           id="ownerName"
+                                                           placeholder="Nombre / Razon Social"
+                                                           value={selectedOwner.name}
+                                                           readOnly
+                                                           onClick={handleOpenModal}
+                                                           {...register('ownerName', {
+                                                               required: validationMessages.ownerName.required,
+                                                               minLength: {
+                                                                   value: 3,
+                                                                   message: validationMessages.ownerName.minLength
+                                                               }
+                                                           })}
+                                                           onBlur={() => trigger('ownerName')}
+                                                    />
+
+                                                    <label htmlFor="ownerName" className="form-label">Nombre / Razon
+                                                        Social </label>
+                                                    {errors.ownerName && <div className="invalid-feedback">
+                                                        {errors.ownerName.message}
+                                                    </div>}
+
+                                                </div>
                                             </div>
+
 
                                             <div className="col-md-3">
                                                 <div className="form-floating mb-3">
@@ -584,7 +637,12 @@ export const UserForm = ({user}) => {
                                                                 notZero: (value) => value !== "0",
                                                             },
                                                         })}
-                                                        defaultValue={user?.owner?.identificationType || "0"}
+                                                        //defaultValue={user?.owner?.identificationType || "0"}
+                                                        value={selectedOwner.identificationType}
+                                                        onChange={(e) => setSelectedOwner({
+                                                            ...selectedOwner,
+                                                            identificationType: e.target.value
+                                                        })}
                                                     >
                                                         <option value="0">Seleccione</option>
                                                         {OWNER_IDENTIFICATION_TYPES.map((type) => (
@@ -602,31 +660,77 @@ export const UserForm = ({user}) => {
                                             </div>
 
                                             <div className="col-md-3">
-                                                <InputField
-                                                    type="text"
-                                                    label="Numero Identificacion"
-                                                    name="ownerIdentification"
-                                                    register={register}
-                                                    errors={errors}
-                                                    trigger={trigger}
-                                                    validationRules={{
-                                                        required: validationMessages.ownerIdentification.required,
-                                                        pattern: {
-                                                            value: /^[-0-9]+$/,
-                                                            message: validationMessages.ownerIdentification.pattern
-                                                        },
-                                                        minLength: {
-                                                            value: 4,
-                                                            message: validationMessages.ownerIdentification.minLength
-                                                        },
-                                                        maxLength: {
-                                                            value: 15,
-                                                            message: validationMessages.ownerIdentification.maxLength
-                                                        }
-                                                    }}
-                                                />
+                                                {/*<InputField*/}
+                                                {/*    type="text"*/}
+                                                {/*    label="Numero Identificacion"*/}
+                                                {/*    name="ownerIdentification"*/}
+                                                {/*    register={register}*/}
+                                                {/*    errors={errors}*/}
+                                                {/*    trigger={trigger}*/}
+                                                {/*    validationRules={{*/}
+                                                {/*        required: validationMessages.ownerIdentification.required,*/}
+                                                {/*        pattern: {*/}
+                                                {/*            value: /^[-0-9]+$/,*/}
+                                                {/*            message: validationMessages.ownerIdentification.pattern*/}
+                                                {/*        },*/}
+                                                {/*        minLength: {*/}
+                                                {/*            value: 4,*/}
+                                                {/*            message: validationMessages.ownerIdentification.minLength*/}
+                                                {/*        },*/}
+                                                {/*        maxLength: {*/}
+                                                {/*            value: 15,*/}
+                                                {/*            message: validationMessages.ownerIdentification.maxLength*/}
+                                                {/*        }*/}
+                                                {/*    }}*/}
+                                                {/*/>*/}
+
+
+                                                <div className="form-floating mb-3">
+
+                                                    <input
+                                                        type="text"
+                                                        className={`form-control ${errors.ownerIdentification ? 'is-invalid' : ''}`}
+                                                        name="ownerIdentification"
+                                                        id="ownerIdentification"
+                                                        placeholder="Numero Identificacion"
+                                                        value={selectedOwner.identification}
+                                                        onChange={(e) => setSelectedOwner({
+                                                            ...selectedOwner,
+                                                            identification: e.target.value
+                                                        })}
+                                                        {...register('ownerIdentification', {
+                                                            required: validationMessages.ownerIdentification.required,
+                                                            pattern: {
+                                                                value: /^[-0-9]+$/,
+                                                                message: validationMessages.ownerIdentification.pattern
+                                                            },
+                                                            minLength: {
+                                                                value: 4,
+                                                                message: validationMessages.ownerIdentification.minLength
+                                                            },
+                                                            maxLength: {
+                                                                value: 15,
+                                                                message: validationMessages.ownerIdentification.maxLength
+                                                            }
+                                                        })}
+                                                        onBlur={() => trigger('ownerIdentification')}
+                                                    />
+                                                    <label htmlFor="ownerIdentification" className="form-label">Numero
+                                                        Identificacion</label>
+                                                    {errors.ownerIdentification &&
+                                                        <div className="invalid-feedback">
+                                                            {errors.ownerIdentification.message}
+                                                        </div>}
+                                                </div>
+
 
                                             </div>
+
+                                            <OwnerSearchModal
+                                                isOpen={isModalOpen}
+                                                onClose={handleCloseModal}
+                                                onSelectOwner={handleSelectOwner}
+                                            />
 
                                             <div className="col-12">
                                                 <div className="d-grid my-3">
