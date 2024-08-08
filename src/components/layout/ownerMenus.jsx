@@ -23,18 +23,7 @@ export const ownerMenus = (closeOffcanvas) => (
                             <div className="nav-link-icon text-primary-emphasis">
                                 <i className="bi bi-arrow-right-short"></i>
                             </div>
-                            <span className="nav-link-text">Obras</span>
-                        </Link>
-                    </li>
-                    <li className="nav-item">
-                        <Link to="operation/machine"
-                              className="nav-link link-secondary"
-                              aria-current="page"
-                              onClick={closeOffcanvas}>
-                            <div className="nav-link-icon text-primary-emphasis">
-                                <i className="bi bi-arrow-right-short"></i>
-                            </div>
-                            <span className="nav-link-text">Maquinas</span>
+                            <span className="nav-link-text">Gestion</span>
                         </Link>
                     </li>
                 </ul>
@@ -86,9 +75,45 @@ export const ownerMenus = (closeOffcanvas) => (
                 <div className="nav-link-icon text-primary">
                     <i className="bi bi-card-heading"></i>
                 </div>
-                <span className="nav-link-text fw-bold">Gestionar</span>
+                <span className="nav-link-text fw-bold">Internos</span>
             </a>
             <div className="collapse" id="operadoresSideBar">
+                <ul className="nav flex-column ms-4">
+                    <li className="nav-item">
+                        <Link to="/users/list"
+                              className="nav-link link-secondary"
+                              aria-current="page"
+                              onClick={closeOffcanvas}>
+                            <div className="nav-link-icon text-primary-emphasis">
+                                <i className="bi bi-arrow-right-short"></i>
+                            </div>
+                            <span className="nav-link-text">Listado</span>
+                        </Link>
+                    </li>
+                    <li className="nav-item">
+                        <Link to="/Creacion"
+                              className="nav-link link-secondary"
+                              aria-current="page"
+                              onClick={closeOffcanvas}>
+                            <div className="nav-link-icon text-primary-emphasis">
+                                <i className="bi bi-arrow-right-short"></i>
+                            </div>
+                            <span className="nav-link-text">Creacion</span>
+                        </Link>
+                    </li>
+                </ul>
+            </div>
+        </li>
+
+        <li className="nav-item">
+            <a className="nav-link p-3" data-bs-toggle="collapse" href="#customerSideBar" role="button"
+               aria-expanded="false" aria-controls="operadoresSideBar">
+                <div className="nav-link-icon text-primary">
+                    <i className="bi bi-card-heading"></i>
+                </div>
+                <span className="nav-link-text fw-bold">Clientes</span>
+            </a>
+            <div className="collapse" id="customerSideBar">
                 <ul className="nav flex-column ms-4">
                     <li className="nav-item">
                         <Link to="/users/list"
@@ -137,7 +162,7 @@ export const ownerMenus = (closeOffcanvas) => (
                             <div className="nav-link-icon text-primary-emphasis">
                                 <i className="bi bi-arrow-right-short"></i>
                             </div>
-                            <span className="nav-link-text">Gestion</span>
+                            <span className="nav-link-text">Listado</span>
                         </Link>
                     </li>
                     <li className="nav-item">
@@ -151,63 +176,20 @@ export const ownerMenus = (closeOffcanvas) => (
                             <span className="nav-link-text">Creacion</span>
                         </Link>
                     </li>
-                    <li className="nav-item">
-                        <Link to="/home"
-                              className="nav-link link-secondary"
-                              aria-current="page"
-                              onClick={closeOffcanvas}>
-                            <div className="nav-link-icon text-primary-emphasis">
-                                <i className="bi bi-arrow-right-short"></i>
-                            </div>
-                            <span className="nav-link-text">Tipos Maquinas</span>
-                        </Link>
-                    </li>
-                    <li className="nav-item">
-                        <Link to="/home"
-                              className="nav-link link-secondary"
-                              aria-current="page"
-                              onClick={closeOffcanvas}>
-                            <div className="nav-link-icon text-primary-emphasis">
-                                <i className="bi bi-arrow-right-short"></i>
-                            </div>
-                            <span className="nav-link-text">Movimiento Maquinas</span>
-                        </Link>
-                    </li>
-                    <li className="nav-item">
-                        <Link to="/home"
-                              className="nav-link link-secondary"
-                              aria-current="page"
-                              onClick={closeOffcanvas}>
-                            <div className="nav-link-icon text-primary-emphasis">
-                                <i className="bi bi-arrow-right-short"></i>
-                            </div>
-                            <span className="nav-link-text">Proveedores GPS</span>
-                        </Link>
-                    </li>
-                    <li className="nav-item">
-                        <Link to="/home"
-                              className="nav-link link-secondary"
-                              aria-current="page"
-                              onClick={closeOffcanvas}>
-                            <div className="nav-link-icon text-primary-emphasis">
-                                <i className="bi bi-arrow-right-short"></i>
-                            </div>
-                            <span className="nav-link-text">Marcas</span>
-                        </Link>
-                    </li>
+
                 </ul>
             </div>
         </li>
 
         <li className="nav-item">
-            <a className="nav-link p-3" data-bs-toggle="collapse" href="#ubicacionSideBar" role="button"
-               aria-expanded="false" aria-controls="ubicacionSideBar">
+            <a className="nav-link p-3" data-bs-toggle="collapse" href="#workSideBar" role="button"
+               aria-expanded="false" aria-controls="maestroSideBar">
                 <div className="nav-link-icon text-primary">
                     <i className="bi bi-card-heading"></i>
                 </div>
-                <span className="nav-link-text fw-bold">Ubicaciones</span>
+                <span className="nav-link-text fw-bold">Obras</span>
             </a>
-            <div className="collapse" id="ubicacionSideBar">
+            <div className="collapse" id="workSideBar">
                 <ul className="nav flex-column ms-4">
                     <li className="nav-item">
                         <Link to="/home"
@@ -217,7 +199,7 @@ export const ownerMenus = (closeOffcanvas) => (
                             <div className="nav-link-icon text-primary-emphasis">
                                 <i className="bi bi-arrow-right-short"></i>
                             </div>
-                            <span className="nav-link-text">Paises</span>
+                            <span className="nav-link-text">Listado</span>
                         </Link>
                     </li>
                     <li className="nav-item">
@@ -228,22 +210,14 @@ export const ownerMenus = (closeOffcanvas) => (
                             <div className="nav-link-icon text-primary-emphasis">
                                 <i className="bi bi-arrow-right-short"></i>
                             </div>
-                            <span className="nav-link-text">Departamentos</span>
+                            <span className="nav-link-text">Creacion</span>
                         </Link>
                     </li>
-                    <li className="nav-item">
-                        <Link to="/home"
-                              className="nav-link link-secondary"
-                              aria-current="page"
-                              onClick={closeOffcanvas}>
-                            <div className="nav-link-icon text-primary-emphasis">
-                                <i className="bi bi-arrow-right-short"></i>
-                            </div>
-                            <span className="nav-link-text">Municipios</span>
-                        </Link>
-                    </li>
+
                 </ul>
             </div>
         </li>
+
+
     </>
 )

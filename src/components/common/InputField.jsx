@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const InputField = ({ type, label, name, register, errors, trigger, validationRules }) => (
+export const InputField = ({ type, label, name, register, errors, trigger, validationRules, readOnly = false  }) => (
   <div className="form-floating mb-3">
     <input
       type={type}
@@ -10,6 +10,7 @@ export const InputField = ({ type, label, name, register, errors, trigger, valid
       placeholder={label}
       {...register(name, validationRules)}
       onBlur={() => trigger(name)}
+      readOnly={readOnly}
     />
     <label htmlFor={name} className="form-label">{label}</label>
     {errors[name] && <div className="invalid-feedback">

@@ -30,6 +30,7 @@ export const UserForm = ({user}) => {
         positions
     } = useContext(MachinTrackContext);
 
+
     // estado del formulario para validaciones
     const {
         register,
@@ -37,23 +38,34 @@ export const UserForm = ({user}) => {
         formState: {errors, isValid},
         trigger,
         watch,
-        setValue
+        setValue,
+        clearErrors
     } = useForm({mode: 'onChange'});
 
     // const {createUser} = useUsers();
 
+    const [selectedValues, setSelectedValues] = useState({
+        idMunicipality: user ?
+            user.employee.municipality.idMunicipality : '',
+        positions: user ?
+            user.employee.position.idPosition : '',
+        role: user ? user.role.idRole : '',
+        userStates: user ?
+            user.state.idState : '',
+        ownerIdentificationType: user.owner.identificationType || '0'
+    });
 
     const [selectedCountry, setSelectedCountry] = useState(user ?
         user.employee.municipality.department.country.idLocation : '');
     const [selectedDepartment, setSelectedDepartment] = useState(user ?
         user.employee.municipality.department.idDepartment : '');
-    const [selectedMunicipality, setSelectedMunicipality] = useState(user ?
-        user.employee.municipality.idMunicipality : '');
-    const [selectedRole, setSelectedRole] = useState(user ? user.role.idRole : '');
-    const [selectedPosition, setSelectedPosition] = useState(user ?
-        user.employee.position.idPosition : '');
-    const [selectedUserStates, setSelectedUserStates] = useState(user ?
-        user.state.idState : '');
+
+    // const [selectedRole, setSelectedRole] = useState(user ? user.role.idRole : '');
+    // const [selectedPosition, setSelectedPosition] = useState(user ?
+    //     user.employee.position.idPosition : '');
+
+    // const [selectedUserStates, setSelectedUserStates] = useState(user ?
+    //     user.state.idState : '');
     const [isFormInitialized, setIsFormInitialized] = useState(false);
 
     const password = watch('password');
@@ -80,19 +92,6 @@ export const UserForm = ({user}) => {
     // console.log("ROLES = ", JSON.stringify(roles, null, 2))
     // console.log("CONUNTRY = ", JSON.stringify(countries, null, 2))
 
-
-    useEffect(() => {
-        if (selectedCountry) {
-            fetchDepartments(selectedCountry);
-        }
-    }, [selectedCountry]);
-
-    useEffect(() => {
-        if (selectedDepartment) {
-            fetchMunicipalities(selectedDepartment);
-        }
-    }, [selectedDepartment]);
-
     useEffect(() => {
         if (user) {
             setSelectedOwner({
@@ -107,22 +106,63 @@ export const UserForm = ({user}) => {
     const handleCountryChange = (event) => {
         const countryId = event.target.value;
         setSelectedCountry(countryId);
+        setValue("idLocation", countryId);
+        setValue("idDepartment", "0");
         if (countryId === "0") {
             setIsDepartmentDisabled(true);
         } else {
+            clearErrors("idLocation");
             fetchDepartments(countryId);
         }
+        trigger("idLocation");
+        trigger("idDepartment");
     };
 
     const handleDepartmentChange = (event) => {
         const departmentId = event.target.value;
         setSelectedDepartment(departmentId);
+        setValue("idDepartment", departmentId);
+        setValue("idMunicipality", "0");
         if (departmentId === "0") {
             setIsMunicipalityDisabled(true);
         } else {
+            clearErrors("idDepartment");
             fetchMunicipalities(departmentId);
         }
+        trigger("idDepartment");
+        trigger("idMunicipality");
     };
+
+    // const handleChange = (e) => {
+    //     const value = e.target.value;
+    //     setSelectedMunicipality(value);
+    //     setValue("idMunicipality", value); // Set the value in the form
+    //     if (value === "0") {
+    //         trigger("idMunicipality"); // Trigger validation only for the role field
+    //     } else {
+    //         clearErrors("idMunicipality"); // Clear errors for the role field if a valid option is selected
+    //         trigger("idMunicipality");
+    //     }
+    // };
+
+    const handleChange = (e) => {
+        const {name, value} = e.target;
+
+        setSelectedValues((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+
+        // setSelectedMunicipality(value);
+        setValue(name, value);
+        if (value === "0") {
+            trigger(name); // Trigger validation only for the field
+        } else {
+            clearErrors(name); // Clear errors for the field if a valid option is selected
+            trigger(name);
+        }
+    };
+
 
     useEffect(() => {
         if (isEditing && !isFormInitialized) {
@@ -136,19 +176,33 @@ export const UserForm = ({user}) => {
             setValue('identification', user.employee.identification);
             setValue('idLocation', selectedCountry);
             setValue('idDepartment', selectedDepartment);
-            setValue('idMunicipality', selectedMunicipality);
-            setValue('positions', selectedPosition);
+            setValue('idMunicipality', selectedValues.idMunicipality);
+            setValue('positions', selectedValues.positions);
             setValue('username', user.userName);
-            setValue('role', selectedRole);
-            setValue('userStates', selectedUserStates);
+            setValue('role', selectedValues.role);
+            setValue('userStates', selectedValues.userStates);
             setValue('ownerName', user.owner.owner || '');
-            setValue('ownerIdentificationType', user.owner.identificationType || '0');
+            setValue('ownerIdentificationType', selectedValues.ownerIdentificationType);
             setValue('ownerIdentification', user.owner.identification || '');
             setIsFormInitialized(true);
             trigger();
         }
-    }, [user, setValue, selectedCountry, selectedDepartment, selectedRole, selectedMunicipality,
-        selectedPosition, selectedUserStates, trigger]);
+
+        if (selectedCountry) {
+            fetchDepartments(selectedCountry);
+        }
+
+        if (selectedDepartment) {
+            fetchMunicipalities(selectedDepartment);
+        }
+
+        if (isFormInitialized) {
+            trigger(); // Forzar la validación cada vez que se recarga la página
+        }
+
+    }, [user, setValue, selectedCountry, selectedDepartment, selectedValues.role, selectedValues.idMunicipality,
+        selectedValues.positions, selectedValues.userStates, selectedValues.ownerIdentificationType,
+        isFormInitialized, trigger]);
 
     const onSubmit = async (data) => {
         if (isEditing && user) {
@@ -356,13 +410,15 @@ export const UserForm = ({user}) => {
                                             <div className="col-md-3">
                                                 <div className="form-floating mb-3">
                                                     <select
-                                                        className={`form-select mb-3 ${
-                                                            selectedCountry === "0" ? "is-invalid" : ""
-                                                        }`}
-                                                        {...register('idLocation')}
-                                                        value={selectedCountry}
+                                                        className={`form-select mb-3 ${errors.idLocation ? "is-invalid" : ""}`}
+                                                        {...register("idLocation", {
+                                                            required: true,
+                                                            validate: {
+                                                                notZero: (value) => value !== "0",
+                                                            },
+                                                        })}
                                                         onChange={handleCountryChange}
-                                                    >
+                                                        value={selectedCountry}>
                                                         <option value="0">Seleccione</option>
                                                         {countries.map((country) => (
                                                             <option key={country.idCountry}
@@ -371,9 +427,9 @@ export const UserForm = ({user}) => {
                                                     </select>
 
                                                     <label className="form-label">Pais</label>
-                                                    {selectedCountry === "0" && (
+                                                    {errors.idLocation && (
                                                         <div className="invalid-feedback">
-                                                            Debe seleccionar un país
+                                                            {validationMessages.location.requiredCountry}
                                                         </div>
                                                     )}
                                                 </div>
@@ -382,10 +438,16 @@ export const UserForm = ({user}) => {
                                             <div className="col-md-3">
                                                 <div className="form-floating mb-3">
                                                     <select
-                                                        className="form-select mb-3" disabled={isDepartmentDisabled}
-                                                        value={selectedDepartment}
-                                                        {...register('idDepartment')}
+                                                        className={`form-select mb-3 ${errors.idDepartment ? "is-invalid" : ""}`}
+                                                        {...register("idDepartment", {
+                                                            required: true,
+                                                            validate: {
+                                                                notZero: (value) => value !== "0",
+                                                            },
+                                                        })}
+                                                        disabled={isDepartmentDisabled}
                                                         onChange={handleDepartmentChange}
+                                                        value={selectedDepartment}
                                                     >
                                                         <option value="0">Seleccione</option>
                                                         {departments.map((department) => (
@@ -396,17 +458,27 @@ export const UserForm = ({user}) => {
                                                         ))}
                                                     </select>
                                                     <label className="form-label">Departamento</label>
+                                                    {errors.idDepartment && (
+                                                        <div className="invalid-feedback">
+                                                            {validationMessages.location.requiredDepartment}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
 
                                             <div className="col-md-3">
                                                 <div className="form-floating mb-3">
                                                     <select
-                                                        className="form-select mb-3"
-                                                        {...register('idMunicipality')}
-                                                        onChange={(e) => setSelectedMunicipality(e.target.value)}
-                                                        value={selectedMunicipality}
+                                                        className={`form-select mb-3 ${errors.idMunicipality ? "is-invalid" : ""}`}
+                                                        {...register("idMunicipality",
+                                                            {
+                                                                required: true, validate: {
+                                                                    notZero: (value) => value !== "0",
+                                                                },
+                                                            })}
                                                         disabled={isMunicipalityDisabled}
+                                                        onChange={handleChange}
+                                                        value={selectedValues.idMunicipality}
                                                     >
                                                         <option value="0">Seleccione</option>
                                                         {municipalities.map((municipality) => (
@@ -417,13 +489,18 @@ export const UserForm = ({user}) => {
                                                         ))}
                                                     </select>
                                                     <label className="form-label">Municipio</label>
+                                                    {errors.idMunicipality && (
+                                                        <div className="invalid-feedback">
+                                                            {validationMessages.location.requiredMunicipality}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
 
                                             <div className="col-md-3">
                                                 <div className="form-floating mb-3">
                                                     <select
-                                                        className={`form-select mb-3 ${selectedPosition === "0" ? "is-invalid" : ""
+                                                        className={`form-select mb-3 ${selectedValues.positions === "0" ? "is-invalid" : ""
                                                         }`}
                                                         {...register("positions", {
                                                             required: true,
@@ -431,8 +508,8 @@ export const UserForm = ({user}) => {
                                                                 notZero: (value) => value !== "0",
                                                             },
                                                         })}
-                                                        onChange={(e) => setSelectedPosition(e.target.value)}
-                                                        value={selectedPosition}
+                                                        onChange={handleChange}
+                                                        value={selectedValues.positions}
                                                     >
                                                         <option value="0">Seleccione</option>
                                                         {positions.map((position) => (
@@ -441,9 +518,9 @@ export const UserForm = ({user}) => {
                                                         ))}
                                                     </select>
                                                     <label className="form-label">Cargo</label>
-                                                    {selectedPosition === "0" && (
+                                                    {errors.positions && (
                                                         <div className="invalid-feedback">
-                                                            {validationMessages.role.required}
+                                                            {validationMessages.position.required}
                                                         </div>
                                                     )}
                                                 </div>
@@ -478,7 +555,7 @@ export const UserForm = ({user}) => {
                                             <div className="col-md-4">
                                                 <div className="form-floating mb-3">
                                                     <select
-                                                        className={`form-select mb-3 ${selectedRole === "0" ? "is-invalid" : ""
+                                                        className={`form-select mb-3 ${selectedValues.role === "0" ? "is-invalid" : ""
                                                         }`}
                                                         {...register("role", {
                                                             required: true,
@@ -486,8 +563,8 @@ export const UserForm = ({user}) => {
                                                                 notZero: (value) => value !== "0",
                                                             },
                                                         })}
-                                                        onChange={(e) => setSelectedRole(e.target.value)}
-                                                        value={selectedRole}
+                                                        onChange={handleChange}
+                                                        value={selectedValues.role}
                                                     >
                                                         <option value="0">Seleccione</option>
                                                         {roles.map((role) => (
@@ -496,7 +573,7 @@ export const UserForm = ({user}) => {
                                                         ))}
                                                     </select>
                                                     <label className="form-label">Rol</label>
-                                                    {selectedRole === "0" && (
+                                                    {errors.role && (
                                                         <div className="invalid-feedback">
                                                             {validationMessages.role.required}
                                                         </div>
@@ -508,7 +585,7 @@ export const UserForm = ({user}) => {
                                                 <div className="form-floating mb-3">
                                                     <select
                                                         className={`form-select mb-3 ${
-                                                            selectedUserStates === "0" ? "is-invalid" : ""
+                                                            selectedValues.userStates === "0" ? "is-invalid" : ""
                                                         }`}
                                                         {...register("userStates", {
                                                             required: true,
@@ -516,8 +593,8 @@ export const UserForm = ({user}) => {
                                                                 notZero: (value) => value !== "0",
                                                             },
                                                         })}
-                                                        onChange={(e) => setSelectedUserStates(e.target.value)}
-                                                        value={selectedUserStates}
+                                                        onChange={handleChange}
+                                                        value={selectedValues.userStates}
                                                     >
                                                         <option value="0">Seleccione</option>
                                                         {states.map((state) => (
@@ -526,7 +603,7 @@ export const UserForm = ({user}) => {
                                                         ))}
                                                     </select>
                                                     <label className="form-label">Estado</label>
-                                                    {selectedUserStates === "0" && (
+                                                    {errors.userStates && (
                                                         <div className="invalid-feedback">
                                                             {validationMessages.userState.required}
                                                         </div>
@@ -628,99 +705,37 @@ export const UserForm = ({user}) => {
 
                                             <div className="col-md-3">
                                                 <div className="form-floating mb-3">
-                                                    <select
-                                                        className={`form-select mb-3 ${errors.ownerIdentificationType ? "is-invalid" : ""
-                                                        }`}
-                                                        {...register("ownerIdentificationType", {
-                                                            required: true,
-                                                            validate: {
-                                                                notZero: (value) => value !== "0",
-                                                            },
-                                                        })}
-                                                        //defaultValue={user?.owner?.identificationType || "0"}
-                                                        value={selectedOwner.identificationType}
-                                                        onChange={(e) => setSelectedOwner({
-                                                            ...selectedOwner,
-                                                            identificationType: e.target.value
-                                                        })}
-                                                    >
-                                                        <option value="0">Seleccione</option>
-                                                        {OWNER_IDENTIFICATION_TYPES.map((type) => (
-                                                            <option key={type.value}
-                                                                    value={type.value}>{type.label}</option>
-                                                        ))}
-                                                    </select>
-                                                    <label className="form-label">Tipo Identificacion</label>
-                                                    {errors.ownerIdentificationType && (
-                                                        <div className="invalid-feedback">
-                                                            {validationMessages.ownerIdentificationType.required}
-                                                        </div>
-                                                    )}
+                                                    <InputField
+                                                        type="text"
+                                                        label="Tipo Identificacion"
+                                                        name="ownerIdentificationType"
+                                                        register={register}
+                                                        errors={errors}
+                                                        trigger={trigger}
+                                                        validationRules={{
+                                                            required: validationMessages.ownerIdentificationType.required
+                                                        }}
+                                                        readOnly={true}
+                                                    />
                                                 </div>
                                             </div>
 
                                             <div className="col-md-3">
-                                                {/*<InputField*/}
-                                                {/*    type="text"*/}
-                                                {/*    label="Numero Identificacion"*/}
-                                                {/*    name="ownerIdentification"*/}
-                                                {/*    register={register}*/}
-                                                {/*    errors={errors}*/}
-                                                {/*    trigger={trigger}*/}
-                                                {/*    validationRules={{*/}
-                                                {/*        required: validationMessages.ownerIdentification.required,*/}
-                                                {/*        pattern: {*/}
-                                                {/*            value: /^[-0-9]+$/,*/}
-                                                {/*            message: validationMessages.ownerIdentification.pattern*/}
-                                                {/*        },*/}
-                                                {/*        minLength: {*/}
-                                                {/*            value: 4,*/}
-                                                {/*            message: validationMessages.ownerIdentification.minLength*/}
-                                                {/*        },*/}
-                                                {/*        maxLength: {*/}
-                                                {/*            value: 15,*/}
-                                                {/*            message: validationMessages.ownerIdentification.maxLength*/}
-                                                {/*        }*/}
-                                                {/*    }}*/}
-                                                {/*/>*/}
-
-
                                                 <div className="form-floating mb-3">
-
-                                                    <input
+                                                    <InputField
                                                         type="text"
-                                                        className={`form-control ${errors.ownerIdentification ? 'is-invalid' : ''}`}
+                                                        label="Numero Identificacion"
                                                         name="ownerIdentification"
-                                                        id="ownerIdentification"
-                                                        placeholder="Numero Identificacion"
-                                                        value={selectedOwner.identification}
-                                                        onChange={(e) => setSelectedOwner({
-                                                            ...selectedOwner,
-                                                            identification: e.target.value
-                                                        })}
-                                                        {...register('ownerIdentification', {
+                                                        register={register}
+                                                        errors={errors}
+                                                        trigger={trigger}
+                                                        validationRules={{
                                                             required: validationMessages.ownerIdentification.required,
-                                                            pattern: {
-                                                                value: /^[-0-9]+$/,
-                                                                message: validationMessages.ownerIdentification.pattern
-                                                            },
-                                                            minLength: {
-                                                                value: 4,
-                                                                message: validationMessages.ownerIdentification.minLength
-                                                            },
-                                                            maxLength: {
-                                                                value: 15,
-                                                                message: validationMessages.ownerIdentification.maxLength
-                                                            }
-                                                        })}
-                                                        onBlur={() => trigger('ownerIdentification')}
+                                                        }}
+                                                        readOnly={true}
                                                     />
-                                                    <label htmlFor="ownerIdentification" className="form-label">Numero
-                                                        Identificacion</label>
-                                                    {errors.ownerIdentification &&
-                                                        <div className="invalid-feedback">
-                                                            {errors.ownerIdentification.message}
-                                                        </div>}
+
+
                                                 </div>
 
 

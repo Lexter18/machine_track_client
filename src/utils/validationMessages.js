@@ -52,6 +52,14 @@ export const validationMessages = {
     role: {
         required: 'Debe seleccionar un rol'
     },
+    position: {
+        required: 'Debe seleccionar un cargo'
+    },
+    location: {
+        requiredCountry: 'Debe seleccionar un pais',
+        requiredDepartment: 'Debe seleccionar un Departamento',
+        requiredMunicipality: 'Debe seleccionar un Municipio'
+    },
     userState: {
         required: 'Debe seleccionar un estado'
     },
