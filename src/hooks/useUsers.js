@@ -5,6 +5,7 @@ import Swal from "sweetalert2";
 import {Messages} from "../utils/messages.js";
 import {useNavigate} from "react-router-dom";
 import {ACTION_REDUCER, ROLES} from "../utils/constants.js";
+import {showAlertErrorSimple, showAlertSuccessSimple} from "../components/common/alert.jsx";
 
 const initialState = {
     user: [],
@@ -41,13 +42,12 @@ export const useUsers = () => {
                 payload: user
             });
 
-            Swal.fire(
-                Messages.USER_CREATED_SUCCESS_TITLE,
-                Messages.USER_CREATED_SUCCESS_TEXT_DESC,
-                Messages.USER_CREATED_SUCCESS_ICON
-            ).then(() => {
-                navigate('/login');
-            });
+            showAlertSuccessSimple({
+                title: Messages.USER_CREATED_SUCCESS_TITLE,
+                text: Messages.USER_CREATED_SUCCESS_TEXT_DESC,
+                navigate: navigate,
+                path: '/login'
+            })
 
         } catch (error) {
             // console.log("Status: ", error.response.status);
@@ -58,17 +58,9 @@ export const useUsers = () => {
 
             if (error.response && error.response.data && error.response.data.errors) {
                 const errorMessages = error.response.data.errors.join('<br>');
-                Swal.fire(
-                    Messages.GENERIC_ERROR_TITLE,
-                    errorMessages,
-                    Messages.GENERIC_ERROR_ICON
-                );
+                showAlertErrorSimple({text: errorMessages});
             } else {
-                Swal.fire(
-                    Messages.GENERIC_ERROR_TITLE,
-                    Messages.GENERIC_ERROR_TEXT,
-                    Messages.GENERIC_ERROR_ICON
-                );
+                showAlertErrorSimple({text: Messages.GENERIC_ERROR_TEXT});
             }
 
             dispatch({
