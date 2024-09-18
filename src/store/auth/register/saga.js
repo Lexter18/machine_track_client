@@ -10,6 +10,8 @@ import {
   postFakeRegister,
   postJwtRegister,
 } from "../../../helpers/fakebackend_helper"
+import {postLogin, postRegister} from "../../../helpers/backend_helper";
+import {apiError} from "../login/actions";
 
 // initialize relavant method of both Auth
 const fireBaseBackend = getFirebaseBackend()
@@ -17,6 +19,10 @@ const fireBaseBackend = getFirebaseBackend()
 // Is user register successfull then direct plot user in redux.
 function* registerUser({ payload: { user } }) {
   try {
+
+    const response = yield call(postRegister, user);
+    yield put(registerUserSuccessful(response))
+
     if (process.env.REACT_APP_DEFAULTAUTH === "firebase") {
       const response = yield call(
         fireBaseBackend.registerUser,
@@ -31,8 +37,23 @@ function* registerUser({ payload: { user } }) {
       const response = yield call(postFakeRegister, user)
       yield put(registerUserSuccessful(response))
     }
+
+
   } catch (error) {
-    yield put(registerUserFailed(error))
+    if (error.response) {
+            const {status} = error.response;
+            if (status) {
+                const errorMessages = error.response.data.errors.join('\n');
+                yield put(registerUserFailed(errorMessages));
+
+            } else {
+                yield put(registerUserFailed(error.response.message));
+            }
+        } else {
+            console.error("Error -> ", error.message);
+            yield put(registerUserFailed("Internal Server Error"))
+        }
+
   }
 }
 

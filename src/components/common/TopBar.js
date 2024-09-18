@@ -52,7 +52,7 @@ const TopBar = () => {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Search..."
+                  placeholder="Search........"
                 />
                 <span className="ri-search-line"></span>
               </div>

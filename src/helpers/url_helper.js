@@ -1,3 +1,8 @@
+//LOGIN
+export const POST_LOGIN = "/login";
+//REGISTER
+export const POST_REGISTER = "/api/users/initialRegistration";
+
 //REGISTER
 export const POST_FAKE_REGISTER = "/post-fake-register";
 

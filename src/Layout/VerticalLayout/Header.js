@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 
 import LanguageDropdown from "../../components/Common/TopbarDropdown/LanguageDropdown";
-import NotificationDropdown from "../../components/Common/TopbarDropdown/NotificationDropdown";
 
 //i18n
 import { withTranslation } from "react-i18next";
@@ -21,37 +20,10 @@ import {
   changeSidebarType,
 } from "../../store/actions";
 import ProfileMenu from "../../components/Common/TopbarDropdown/ProfileMenu";
-import AppsDropdown from "../../components/Common/TopbarDropdown/AppsDropdown";
+
 
 const Header = (props) => {
   const [search, setsearch] = useState(false);
-
-  function toggleFullscreen() {
-    if (
-      !document.fullscreenElement &&
-      /* alternative standard method */ !document.mozFullScreenElement &&
-      !document.webkitFullscreenElement
-    ) {
-      // current working methods
-      if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen();
-      } else if (document.documentElement.mozRequestFullScreen) {
-        document.documentElement.mozRequestFullScreen();
-      } else if (document.documentElement.webkitRequestFullscreen) {
-        document.documentElement.webkitRequestFullscreen(
-          Element.ALLOW_KEYBOARD_INPUT
-        );
-      }
-    } else {
-      if (document.cancelFullScreen) {
-        document.cancelFullScreen();
-      } else if (document.mozCancelFullScreen) {
-        document.mozCancelFullScreen();
-      } else if (document.webkitCancelFullScreen) {
-        document.webkitCancelFullScreen();
-      }
-    }
-  }
 
   function tToggle() {
     var body = document.body;
@@ -152,38 +124,8 @@ const Header = (props) => {
             </div>
 
             <LanguageDropdown />
-            <AppsDropdown />
-
-            <div className="dropdown d-none d-lg-inline-block ms-1">
-              <button
-                type="button"
-                onClick={() => {
-                  toggleFullscreen();
-                }}
-                className="btn header-item noti-icon"
-                data-toggle="fullscreen"
-              >
-                <i className="ri-fullscreen-line" />
-              </button>
-            </div>
-
-            <NotificationDropdown />
-
             <ProfileMenu />
 
-            <div
-              className="dropdown d-inline-block"
-              onClick={() => {
-                props.showRightSidebarAction(!props.showRightSidebar);
-              }}
-            >
-              <button
-                type="button"
-                className="btn header-item noti-icon right-bar-toggle waves-effect"
-              >
-                <i className="mdi mdi-cog"></i>
-              </button>
-            </div>
           </div>
         </div>
       </header>
