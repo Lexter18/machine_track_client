@@ -27,26 +27,17 @@ import {createSelector} from 'reselect';
 // import images
 import logolight from '../../assets/images/logo-light.png';
 import logodark from '../../assets/images/logo-dark.png';
+import {IDENTIFICATION_TYPES, OWNER_IDENTIFICATION_TYPES} from "../../constants/constantsUtils";
 
 
 const Register = props => {
     document.title = "Register | Upzet - React Admin & Dashboard Template";
 
-    const [activeTab, setactiveTab] = useState(1);
     const [activeTabwiz, setoggleTabwiz] = useState(1);
-
-    const [passedSteps, setPassedSteps] = useState([1]);
     const [passedStepswiz, setpassedStepswiz] = useState([1]);
-
-    function toggleTab(tab) {
-        if (activeTab !== tab) {
-            var modifiedSteps = [...passedSteps, tab];
-            if (tab >= 1 && tab <= 4) {
-                setactiveTab(tab);
-                setPassedSteps(modifiedSteps);
-            }
-        }
-    }
+    const [isTab1Valid, setIsTab1Valid] = useState(false);
+    const [isTab2Valid, setIsTab2Valid] = useState(false);
+    const [isTab3Valid, setIsTab3Valid] = useState(false);
 
     function toggleTabwiz(tab) {
         if (activeTabwiz !== tab) {
@@ -69,11 +60,13 @@ const Register = props => {
             firstSurname: '',
             email: '',
             identification: '',
+            identificationType: '0',
             phone: '',
             username: '',
             password: '',
             confirmPassword: '',
             ownerName: '',
+            ownerIdentificationType: '0',
             ownerIdentification: '',
         },
         validationSchema: Yup.object({
@@ -89,6 +82,9 @@ const Register = props => {
                 .min(4, "Tu identificacion debe tener al menos 4 dígitos.")
                 .max(10, "Tu identificacion debe tener 10 dígitos o menos.")
                 .matches(/^[0-9]+$/, "Tu identificacion debe ser numérica."),
+            identificationType: Yup.string()
+                .notOneOf(['0'], 'Selecciona un tipo de identificación válido')
+                .required("Selecciona un tipo de identificación"),
             phone: Yup.string()
                 .required("Ingresa tu Celular")
                 .min(10, "Tu número de celular debe tener 10 dígitos.")
@@ -102,12 +98,16 @@ const Register = props => {
                 .min(8, "La contraseña debe tener al menos 8 caracteres")
                 .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/, "La contraseña debe incluir mayúsculas, minúsculas y por lo menos un número."),
             confirmPassword: Yup.string()
+                .oneOf([Yup.ref('password'), null], 'Las contraseñas deben coincidir')
                 .required("Confirma tu Password")
                 .min(8, "La contraseña debe tener al menos 8 caracteres")
                 .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/, "La contraseña debe incluir mayúsculas, minúsculas y por lo menos un número."),
             ownerName: Yup.string()
                 .required("Ingresa tu razon social")
                 .min(3, "Tu razon social debe tener al menos 3 caracteres."),
+            ownerIdentificationType: Yup.string()
+                .notOneOf(['0'], 'Selecciona un tipo de identificación válido')
+                .required("Selecciona un tipo de identificación"),
             ownerIdentification: Yup.string()
                 .required("Ingresa tu # de documento.")
                 .min(4, "Tu documento debe tener al menos 4 dígitos.")
@@ -118,6 +118,47 @@ const Register = props => {
             dispatch(registerUser(values));
         }
     });
+
+    useEffect(() => {
+        if (activeTabwiz === 1) {
+            setIsTab1Valid(
+                validation.values.firstName !== '' &&
+                !validation.errors.firstName &&
+                validation.values.firstSurname !== '' &&
+                !validation.errors.firstSurname &&
+                validation.values.identification !== '' &&
+                !validation.errors.identification &&
+                validation.values.phone !== '' &&
+                !validation.errors.phone &&
+                validation.values.identificationType !== '' &&
+                !validation.errors.identificationType
+            );
+        }
+
+        if (activeTabwiz === 2) {
+            setIsTab2Valid(
+                validation.values.username !== '' &&
+                !validation.errors.username &&
+                validation.values.email !== '' &&
+                !validation.errors.email &&
+                validation.values.password !== '' &&
+                !validation.errors.password &&
+                validation.values.confirmPassword !== '' &&
+                !validation.errors.confirmPassword
+            );
+        }
+
+        if (activeTabwiz === 3) {
+            setIsTab3Valid(
+                validation.values.ownerName !== '' &&
+                !validation.errors.ownerName &&
+                validation.values.ownerIdentification !== '' &&
+                !validation.errors.ownerIdentification &&
+                validation.values.ownerIdentificationType !== '0' &&
+                !validation.errors.ownerIdentificationType
+            );
+        }
+    }, [validation.values, validation.errors, activeTabwiz]);
 
     const registerpage = createSelector(
         (state) => state.account,
@@ -207,7 +248,9 @@ const Register = props => {
                                                         }))
                                                     }
                                                     onClick={() => {
-                                                        toggleTabwiz(2);
+                                                        if ((isTab1Valid)) {
+                                                            toggleTabwiz(2);
+                                                        }
                                                     }}
                                                 >
                                                     <span className="step-number">02</span>
@@ -227,7 +270,9 @@ const Register = props => {
                                                         }))
                                                     }
                                                     onClick={() => {
-                                                        toggleTabwiz(3);
+                                                        if ((isTab2Valid)) {
+                                                            toggleTabwiz(3);
+                                                        }
                                                     }}
                                                 >
                                                     <span className="step-number">03</span>
@@ -333,14 +378,25 @@ const Register = props => {
                                                                         Tipo Identificacion
                                                                     </label>
                                                                     <select
-                                                                        className="form-select"
-                                                                        id="inlineFormSelectPref"
+                                                                        className={`form-select ${validation.touched.identificationType &&
+                                                                        validation.errors.identificationType ? "is-invalid" : ""}`}
+                                                                        id="identificationType"
+                                                                        name="identificationType"
+                                                                        onChange={validation.handleChange}
+                                                                        onBlur={validation.handleBlur}
+                                                                        value={validation.values.identificationType}
                                                                     >
-                                                                        <option defaultValue>Seleccione...</option>
-                                                                        <option defaultValue="1">One</option>
-                                                                        <option defaultValue="2">Two</option>
-                                                                        <option defaultValue="3">Three</option>
+                                                                        <option value="0">Seleccione...</option>
+                                                                        {IDENTIFICATION_TYPES.map((type) => (
+                                                                            <option key={type.value}
+                                                                                    value={type.value}>{type.label}</option>
+                                                                        ))}
                                                                     </select>
+                                                                    {validation.touched.identificationType && validation.errors.identificationType ? (
+                                                                        <FormFeedback type="invalid">
+                                                                            {validation.errors.identificationType}
+                                                                        </FormFeedback>
+                                                                    ) : null}
                                                                 </div>
                                                             </FormGroup>
                                                         </Col>
@@ -536,14 +592,25 @@ const Register = props => {
                                                                         Tipo Documento
                                                                     </label>
                                                                     <select
-                                                                        className="form-select"
-                                                                        id="inlineFormSelectPref"
+                                                                        className={`form-select ${validation.touched.ownerIdentificationType &&
+                                                                        validation.errors.ownerIdentificationType ? "is-invalid" : ""}`}
+                                                                        id="ownerIdentificationType"
+                                                                        name="ownerIdentificationType"
+                                                                        onChange={validation.handleChange}
+                                                                        onBlur={validation.handleBlur}
+                                                                        value={validation.values.ownerIdentificationType}
                                                                     >
-                                                                        <option defaultValue>Seleccione...</option>
-                                                                        <option defaultValue="1">One</option>
-                                                                        <option defaultValue="2">Two</option>
-                                                                        <option defaultValue="3">Three</option>
+                                                                        <option value="0">Seleccione...</option>
+                                                                        {OWNER_IDENTIFICATION_TYPES.map((type) => (
+                                                                            <option key={type.value}
+                                                                                    value={type.value}>{type.label}</option>
+                                                                        ))}
                                                                     </select>
+                                                                    {validation.touched.ownerIdentificationType && validation.errors.ownerIdentificationType ? (
+                                                                        <FormFeedback type="invalid">
+                                                                            {validation.errors.ownerIdentificationType}
+                                                                        </FormFeedback>
+                                                                    ) : null}
                                                                 </FormGroup>
                                                             </Col>
                                                         </Row>
@@ -673,13 +740,23 @@ const Register = props => {
                                             </li>
                                             <li
                                                 className={
-                                                    activeTabwiz === 4 ? "next disabled" : "next"
+                                                    (activeTabwiz === 4) ||
+                                                    (activeTabwiz === 1 && !isTab1Valid) ||
+                                                    (activeTabwiz === 2 && !isTab2Valid) ||
+                                                    (activeTabwiz === 3 && !isTab3Valid)
+                                                        ? "next disabled"
+                                                        : "next"
                                                 }
                                             >
                                                 <Link
                                                     to="#"
+                                                    disabled={(activeTabwiz === 1 && !isTab1Valid)}
                                                     onClick={() => {
-                                                        toggleTabwiz(activeTabwiz + 1);
+                                                        if ((activeTabwiz === 1 && isTab1Valid) ||
+                                                            (activeTabwiz === 2 && isTab2Valid) ||
+                                                            (activeTabwiz === 3 && isTab3Valid)) {
+                                                            toggleTabwiz(activeTabwiz + 1);
+                                                        }
                                                     }}
                                                 >
                                                     Next

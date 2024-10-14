@@ -1,8 +1,13 @@
 //LOGIN
 export const POST_LOGIN = "/login";
+
 //REGISTER
 export const POST_REGISTER = "/api/users/initialRegistration";
 
+//LOCATION
+export const GET_COUNTRIES = "/api/locations/countries";
+export const GET_DEPARTMENTS = "/api/locations/departments";
+export const GET_MUNICIPALITIES = "/api/locations/municipalities";
 //REGISTER
 export const POST_FAKE_REGISTER = "/post-fake-register";
 

@@ -48,12 +48,12 @@ class APIClient {
         return axios.get(url, params);
     };
 
-  /**
-   * post given data to url
-   */
-  create = (url, data) => {
-    return axios.post(url, data);
-  };
+    /**
+     * post given data to url
+     */
+    create = (url, data) => {
+        return axios.post(url, data);
+    };
 
     /**
      * Updates data
