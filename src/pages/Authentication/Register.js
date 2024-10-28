@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from "react";
 import {
-    Row, Col, CardBody, Card, Alert, Container, Input, Label, Form, FormFeedback,
+    Row, Col, CardBody, Card, Modal, ModalBody, Button, Container, Input, Label, Form, FormFeedback,
     FormGroup,
     TabContent,
     TabPane,
     Progress,
     NavLink,
-    NavItem,
+    NavItem, UncontrolledAlert,
 } from "reactstrap";
 
 // Formik Validation
@@ -14,25 +14,25 @@ import * as Yup from "yup";
 import {useFormik} from "formik";
 
 // action
-import {registerUser, apiError} from "../../store/actions";
+import {registerUser, apiError, listCountries, listDepartments, listMunicipality, clearUser} from "../../store/actions";
 
 //redux
 import {useSelector, useDispatch} from "react-redux";
 
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import classnames from "classnames";
 
 import {createSelector} from 'reselect';
 
 // import images
-import logolight from '../../assets/images/logo-light.png';
 import logodark from '../../assets/images/logo-dark.png';
-import {IDENTIFICATION_TYPES, OWNER_IDENTIFICATION_TYPES} from "../../constants/constantsUtils";
+import {APP_NAME, IDENTIFICATION_TYPES, OWNER_IDENTIFICATION_TYPES} from "../../constants/constantsUtils";
 
 
 const Register = props => {
-    document.title = "Register | Upzet - React Admin & Dashboard Template";
-
+    document.title = "Registro | " + APP_NAME;
+    const navigate = useNavigate();
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [activeTabwiz, setoggleTabwiz] = useState(1);
     const [passedStepswiz, setpassedStepswiz] = useState([1]);
     const [isTab1Valid, setIsTab1Valid] = useState(false);
@@ -40,9 +40,10 @@ const Register = props => {
     const [isTab3Valid, setIsTab3Valid] = useState(false);
 
     function toggleTabwiz(tab) {
+        console.log("TAB = ", tab)
         if (activeTabwiz !== tab) {
             var modifiedSteps = [...passedStepswiz, tab];
-            if (tab >= 1 && tab <= 4) {
+            if (tab >= 1 && tab <= 3) {
                 setoggleTabwiz(tab);
                 setpassedStepswiz(modifiedSteps);
             }
@@ -50,11 +51,9 @@ const Register = props => {
     }
 
     const dispatch = useDispatch();
-
     const validation = useFormik({
         // enableReinitialize : use this flag when initial values needs to be changed
         enableReinitialize: true,
-
         initialValues: {
             firstName: '',
             firstSurname: '',
@@ -68,6 +67,10 @@ const Register = props => {
             ownerName: '',
             ownerIdentificationType: '0',
             ownerIdentification: '',
+            idCountry: '0',
+            idDepartment: '0',
+            idMunicipality: '0',
+            termsAccepted: false
         },
         validationSchema: Yup.object({
             firstName: Yup.string()
@@ -112,12 +115,65 @@ const Register = props => {
                 .required("Ingresa tu # de documento.")
                 .min(4, "Tu documento debe tener al menos 4 dígitos.")
                 .max(15, "Tu documento debe tener 15 dígitos o menos.")
-                .matches(/^[0-9]+$/, "Tu documento debe ser numérica."),
+                .matches(/^[0-9]+$/, "Tu documento debe ser numérico."),
+            idCountry: Yup.string()
+                .notOneOf(['0'], 'Selecciona un país válido')
+                .required("Selecciona un país"),
+            idDepartment: Yup.string()
+                .notOneOf(['0'], 'Selecciona un departamento válido')
+                .required("Selecciona un departamento"),
+            idMunicipality: Yup.string()
+                .notOneOf(['0'], 'Selecciona un municipio valido válido')
+                .required("Selecciona un municipio"),
+            termsAccepted: Yup.boolean().oneOf([true], "Debe aceptar los términos y condiciones")
         }),
         onSubmit: (values) => {
             dispatch(registerUser(values));
         }
     });
+
+    const countries = useSelector(state => state.locations.countries);
+    const globalDepartments = useSelector(state => state.locations.departments);
+    const globalMunicipalities = useSelector(state => state.locations.municipalities);
+    const [selectedCountry, setSelectedCountry] = useState('');
+    const [selectedDepartment, setSelectedDepartment] = useState('');
+    const [isDepartmentDisabled, setIsDepartmentDisabled] = useState(true);
+    const [isMunicipalityDisabled, setIsMunicipalityDisabled] = useState(true);
+    const [departments, setDepartments] = useState([]);
+    const [municipalities, setMunicipalities] = useState([]);
+
+    useEffect(() => {
+        dispatch(listCountries());
+    }, [dispatch]);
+
+    useEffect(() => {
+        if (selectedCountry) {
+            dispatch(listDepartments(selectedCountry));
+            setIsDepartmentDisabled(false);
+        } else {
+            setIsDepartmentDisabled(true);
+            setDepartments([]);
+        }
+    }, [selectedCountry, dispatch]);
+
+    useEffect(() => {
+        setDepartments(globalDepartments);
+    }, [globalDepartments]);
+
+    useEffect(() => {
+        //dispatch(listDepartments(1));
+        if (selectedDepartment) {
+            dispatch(listMunicipality(selectedDepartment));
+            setIsMunicipalityDisabled(false);
+        } else {
+            setIsMunicipalityDisabled(true);
+            setMunicipalities([]);
+        }
+    }, [selectedDepartment, dispatch]);
+
+    useEffect(() => {
+        setMunicipalities(globalMunicipalities);
+    }, [globalMunicipalities]);
 
     useEffect(() => {
         if (activeTabwiz === 1) {
@@ -130,13 +186,13 @@ const Register = props => {
                 !validation.errors.identification &&
                 validation.values.phone !== '' &&
                 !validation.errors.phone &&
-                validation.values.identificationType !== '' &&
+                validation.values.identificationType !== '0' &&
                 !validation.errors.identificationType
             );
         }
 
-        if (activeTabwiz === 2) {
-            setIsTab2Valid(
+        if (activeTabwiz === 3) {
+            setIsTab3Valid(
                 validation.values.username !== '' &&
                 !validation.errors.username &&
                 validation.values.email !== '' &&
@@ -144,18 +200,26 @@ const Register = props => {
                 validation.values.password !== '' &&
                 !validation.errors.password &&
                 validation.values.confirmPassword !== '' &&
-                !validation.errors.confirmPassword
+                !validation.errors.confirmPassword &&
+                validation.values.termsAccepted !== false &&
+                !validation.errors.termsAccepted
             );
         }
 
-        if (activeTabwiz === 3) {
-            setIsTab3Valid(
+        if (activeTabwiz === 2) {
+            setIsTab2Valid(
                 validation.values.ownerName !== '' &&
                 !validation.errors.ownerName &&
                 validation.values.ownerIdentification !== '' &&
                 !validation.errors.ownerIdentification &&
                 validation.values.ownerIdentificationType !== '0' &&
-                !validation.errors.ownerIdentificationType
+                !validation.errors.ownerIdentificationType &&
+                validation.values.idCountry !== '0' &&
+                !validation.errors.idCountry &&
+                validation.values.idDepartment !== '0' &&
+                !validation.errors.idDepartment &&
+                validation.values.idMunicipality !== '0' &&
+                !validation.errors.idMunicipality
             );
         }
     }, [validation.values, validation.errors, activeTabwiz]);
@@ -167,17 +231,45 @@ const Register = props => {
             registrationError: state.registrationError,
         })
     );
-// Inside your component
-    const {user, registrationError} = useSelector(registerpage);
 
-    // handleValidSubmit
-    // const handleValidSubmit = values => {
-    //   dispatch(registerUser(values));
-    // };
+    const {user, registrationError} = useSelector(registerpage);
+    const handleRegister = () => {
+        const registrationData = {
+            firstName: validation.values.firstName,
+            middleName: validation.values.middleName || "",
+            firstSurname: validation.values.firstSurname,
+            secondSurname: validation.values.secondSurname || "",
+            identification: validation.values.identification,
+            identificationType: validation.values.identificationType,
+            ownerName: validation.values.ownerName,
+            ownerIdentificationType: validation.values.ownerIdentificationType,
+            ownerIdentification: validation.values.ownerIdentification,
+            username: validation.values.username,
+            password: validation.values.password,
+            email: validation.values.email,
+            phone: validation.values.phone,
+            idMunicipality: validation.values.idMunicipality,
+            termsAccepted: validation.values.termsAccepted
+        };
+
+        dispatch(registerUser(registrationData));
+    };
+
+    const handleLoginRedirect = () => {
+        dispatch(clearUser());
+        setShowSuccessModal(false);
+        navigate('/login');
+    };
 
     useEffect(() => {
         dispatch(apiError(""));
     }, [dispatch]);
+
+    useEffect(() => {
+        if (user) {
+            setShowSuccessModal(true);
+        }
+    }, [user]);
 
     return (
         <div className="bg-pattern" style={{height: "120vh"}}>
@@ -196,13 +288,8 @@ const Register = props => {
                                                 src={logodark}
                                                 alt=""
                                                 height="24"
+                                                style={{marginTop: '24px'}}
                                                 className="auth-logo logo-dark mx-auto"
-                                            />
-                                            <img
-                                                src={logolight}
-                                                alt=""
-                                                height="24"
-                                                className="auth-logo logo-light mx-auto"
                                             />
                                         </Link>
                                     </div>
@@ -254,7 +341,7 @@ const Register = props => {
                                                     }}
                                                 >
                                                     <span className="step-number">02</span>
-                                                    <span className="step-title" style={{paddingLeft: "10px"}}>Detalle Usuario</span>
+                                                    <span className="step-title" style={{paddingLeft: "10px"}}>Datos Empresariales</span>
                                                 </NavLink>
                                             </NavItem>
 
@@ -276,30 +363,32 @@ const Register = props => {
                                                     }}
                                                 >
                                                     <span className="step-number">03</span>
-                                                    <span className="step-title" style={{paddingLeft: "10px"}}>Datos Empresariales</span>
+                                                    <span className="step-title" style={{paddingLeft: "10px"}}>Detalle Usuario</span>
                                                 </NavLink>
                                             </NavItem>
 
-                                            <NavItem
-                                                className={classnames({
-                                                    active: activeTabwiz === 4,
-                                                })}
-                                            >
-                                                <NavLink
-                                                    className={
-                                                        (classnames({
-                                                            active: activeTabwiz === 4,
-                                                        }))
-                                                    }
-                                                    onClick={() => {
-                                                        toggleTabwiz(4);
-                                                    }}
-                                                >
-                                                    <span className="step-number">04</span>
-                                                    <span className="step-title"
-                                                          style={{paddingLeft: "10px"}}>Confirmar</span>
-                                                </NavLink>
-                                            </NavItem>
+                                            {/*<NavItem*/}
+                                            {/*    className={classnames({*/}
+                                            {/*        active: activeTabwiz === 4,*/}
+                                            {/*    })}*/}
+                                            {/*>*/}
+                                            {/*    <NavLink*/}
+                                            {/*        className={*/}
+                                            {/*            (classnames({*/}
+                                            {/*                active: activeTabwiz === 4,*/}
+                                            {/*            }))*/}
+                                            {/*        }*/}
+                                            {/*        onClick={() => {*/}
+                                            {/*            if ((isTab3Valid)) {*/}
+                                            {/*                toggleTabwiz(4);*/}
+                                            {/*            }*/}
+                                            {/*        }}*/}
+                                            {/*    >*/}
+                                            {/*        <span className="step-number">04</span>*/}
+                                            {/*        <span className="step-title"*/}
+                                            {/*              style={{paddingLeft: "10px"}}>Confirmar</span>*/}
+                                            {/*    </NavLink>*/}
+                                            {/*</NavItem>*/}
                                         </ul>
 
                                         <div id="bar" className="mt-4">
@@ -311,6 +400,39 @@ const Register = props => {
                                                 ></Progress>
                                             </div>
                                         </div>
+
+                                        {/* INICIO NOTIFICACIONES */}
+                                        {registrationError && (
+                                            <UncontrolledAlert color="danger" role="alert">
+                                                <strong>Error!</strong>
+                                                <div dangerouslySetInnerHTML={{__html: registrationError}}/>
+                                            </UncontrolledAlert>
+                                        )}
+
+                                        <Modal isOpen={showSuccessModal} role="alert" className="card border p-0 mb-0">
+                                            <div className="card-header bg-success-subtle">
+                                                <div className="d-flex">
+                                                    <div className="flex-grow-1">
+                                                        <h5 className="font-size-16 text-success my-1">
+                                                            Usuario Creado
+                                                        </h5>
+                                                    </div>
+                                                    <div className="flex-shrink-0">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <ModalBody>
+                                                <CardBody className="text-center">
+                                                    <i className="mdi mdi-checkbox-marked-circle-outline display-4 text-success"></i>
+                                                    <h4 className="alert-heading">Excelente!</h4>
+                                                    <p>¡Registro completado con éxito!</p>
+                                                    <Button color="primary" onClick={handleLoginRedirect}>
+                                                        Ir al Login
+                                                    </Button>
+                                                </CardBody>
+                                            </ModalBody>
+                                        </Modal>
+                                        {/* FIN NOTIFICACIONES */}
 
                                         <TabContent activeTab={activeTabwiz} className="twitter-bs-wizard-tab-content">
                                             <TabPane tabId={1}>
@@ -373,7 +495,7 @@ const Register = props => {
                                                                 <div className="mb-4">
                                                                     <label
                                                                         // className="visually-hidden"
-                                                                        htmlFor="inlineFormSelectPref"
+                                                                        htmlFor="identificationType"
                                                                     >
                                                                         Tipo Identificacion
                                                                     </label>
@@ -452,6 +574,212 @@ const Register = props => {
                                                 </Form>
                                             </TabPane>
                                             <TabPane tabId={2}>
+                                                <div>
+                                                    <Form>
+                                                        <Row>
+                                                            <Col lg="6">
+                                                                <FormGroup className="mb-3">
+                                                                    <Label className="form-label">Nombre / Razon
+                                                                        Social</Label>
+                                                                    <Input
+                                                                        id="ownerName"
+                                                                        name="ownerName"
+                                                                        type="text"
+                                                                        placeholder="Ingresa tu Razon Social"
+                                                                        onChange={validation.handleChange}
+                                                                        onBlur={validation.handleBlur}
+                                                                        value={validation.values.ownerName || ""}
+                                                                        invalid={
+                                                                            !!(validation.touched.ownerName && validation.errors.ownerName)
+                                                                        }
+                                                                    />
+                                                                    {validation.touched.ownerName && validation.errors.ownerName ? (
+                                                                        <FormFeedback type="invalid">
+                                                                            <div>{validation.errors.ownerName}</div>
+                                                                        </FormFeedback>
+                                                                    ) : null}
+                                                                </FormGroup>
+                                                            </Col>
+
+                                                            <Col lg="6">
+                                                                <FormGroup className="mb-3">
+                                                                    <label
+                                                                        // className="visually-hidden"
+                                                                        htmlFor="inlineFormSelectPref"
+                                                                    >
+                                                                        Tipo Documento
+                                                                    </label>
+                                                                    <select
+                                                                        className={`form-select ${validation.touched.ownerIdentificationType &&
+                                                                        validation.errors.ownerIdentificationType ? "is-invalid" : ""}`}
+                                                                        id="ownerIdentificationType"
+                                                                        name="ownerIdentificationType"
+                                                                        onChange={validation.handleChange}
+                                                                        onBlur={validation.handleBlur}
+                                                                        value={validation.values.ownerIdentificationType}
+                                                                    >
+                                                                        <option value="0">Seleccione...</option>
+                                                                        {OWNER_IDENTIFICATION_TYPES.map((type) => (
+                                                                            <option key={type.value}
+                                                                                    value={type.value}>{type.label}</option>
+                                                                        ))}
+                                                                    </select>
+                                                                    {validation.touched.ownerIdentificationType && validation.errors.ownerIdentificationType ? (
+                                                                        <FormFeedback type="invalid">
+                                                                            {validation.errors.ownerIdentificationType}
+                                                                        </FormFeedback>
+                                                                    ) : null}
+                                                                </FormGroup>
+                                                            </Col>
+                                                        </Row>
+                                                        <Row>
+                                                            <Col lg="6">
+                                                                <FormGroup className="mb-3">
+                                                                    <Label className="form-label"># Documento</Label>
+                                                                    <Input
+                                                                        id="ownerIdentification"
+                                                                        name="ownerIdentification"
+                                                                        type="text"
+                                                                        placeholder="Ingresa tu numero de documento"
+                                                                        onChange={validation.handleChange}
+                                                                        onBlur={validation.handleBlur}
+                                                                        value={validation.values.ownerIdentification || ""}
+                                                                        invalid={
+                                                                            !!(validation.touched.ownerIdentification && validation.errors.ownerIdentification)
+                                                                        }
+                                                                    />
+                                                                    {validation.touched.ownerIdentification && validation.errors.ownerIdentification ? (
+                                                                        <FormFeedback type="invalid">
+                                                                            <div>{validation.errors.ownerIdentification}</div>
+                                                                        </FormFeedback>
+                                                                    ) : null}
+                                                                </FormGroup>
+                                                            </Col>
+
+                                                            <Col lg="6">
+                                                                <FormGroup className="mb-3">
+                                                                    <label
+                                                                        // className="visually-hidden"
+                                                                        htmlFor="idCountry"
+                                                                    >
+                                                                        Pais
+                                                                    </label>
+                                                                    <select
+                                                                        //className="form-select"
+                                                                        id="idCountry"
+                                                                        value={validation.values.idCountry}
+                                                                        onChange={(e) => {
+                                                                            validation.handleChange(e);
+                                                                            setSelectedCountry(e.target.value);
+                                                                        }}
+                                                                        onBlur={validation.handleBlur}
+                                                                        className={`form-select ${validation.touched.idCountry &&
+                                                                        validation.errors.idCountry ? "is-invalid" : ""}`}
+                                                                    >
+                                                                        <option value="0">Seleccione...</option>
+                                                                        {countries && countries.length > 0 ? (
+                                                                            countries.map((country) => (
+                                                                                <option key={country.idCountry}
+                                                                                        value={country.idCountry}>
+                                                                                    {country.name}
+                                                                                </option>
+                                                                            ))
+                                                                        ) : (
+                                                                            <option value="">Cargando países...</option>
+                                                                        )}
+                                                                    </select>
+                                                                    {validation.touched.idCountry && validation.errors.idCountry ? (
+                                                                        <FormFeedback type="invalid">
+                                                                            {validation.errors.idCountry}
+                                                                        </FormFeedback>
+                                                                    ) : null}
+                                                                </FormGroup>
+                                                            </Col>
+                                                        </Row>
+                                                        <Row>
+                                                            <Col lg="6">
+                                                                <FormGroup className="mb-3">
+                                                                    <label
+                                                                        htmlFor="idDepartment"
+                                                                    >
+                                                                        Departamento
+                                                                    </label>
+                                                                    <select
+                                                                        id="idDepartment"
+                                                                        disabled={isDepartmentDisabled}
+                                                                        value={validation.values.idDepartment}
+                                                                        onChange={(e) => {
+                                                                            validation.handleChange(e);
+                                                                            setSelectedDepartment(e.target.value);
+                                                                        }}
+                                                                        onBlur={validation.handleBlur}
+                                                                        className={`form-select ${validation.touched.idDepartment &&
+                                                                        validation.errors.idDepartment ? "is-invalid" : ""}`}
+                                                                    >
+                                                                        <option value="0">Seleccione...</option>
+                                                                        {departments && departments.length > 0 ? (
+                                                                            departments.map((department) => (
+                                                                                <option key={department.idDepartment}
+                                                                                        value={department.idDepartment}>
+                                                                                    {department.name}
+                                                                                </option>
+                                                                            ))
+                                                                        ) : (
+                                                                            <option value="">Cargando
+                                                                                departementos...</option>
+                                                                        )}
+                                                                    </select>
+                                                                    {validation.touched.idDepartment && validation.errors.idDepartment ? (
+                                                                        <FormFeedback type="invalid">
+                                                                            {validation.errors.idDepartment}
+                                                                        </FormFeedback>
+                                                                    ) : null}
+                                                                </FormGroup>
+                                                            </Col>
+                                                            <Col lg="6">
+                                                                <FormGroup className="mb-3">
+                                                                    <label
+                                                                        htmlFor="idMunicipality"
+                                                                    >
+                                                                        Ciudad
+                                                                    </label>
+                                                                    <select
+                                                                        id="idMunicipality"
+                                                                        disabled={isMunicipalityDisabled}
+                                                                        value={validation.values.idMunicipality}
+                                                                        onChange={(e) => {
+                                                                            validation.handleChange(e);
+                                                                        }}
+                                                                        onBlur={validation.handleBlur}
+                                                                        className={`form-select ${validation.touched.idMunicipality &&
+                                                                        validation.errors.idMunicipality ? "is-invalid" : ""}`}
+                                                                    >
+                                                                        <option value="0">Seleccione...</option>
+                                                                        {municipalities && municipalities.length > 0 ? (
+                                                                            municipalities.map((municipality) => (
+                                                                                <option
+                                                                                    key={municipality.idMunicipality}
+                                                                                    value={municipality.idMunicipality}>
+                                                                                    {municipality.name}
+                                                                                </option>
+                                                                            ))
+                                                                        ) : (
+                                                                            <option value="">Cargando
+                                                                                departementos...</option>
+                                                                        )}
+                                                                    </select>
+                                                                    {validation.touched.idMunicipality && validation.errors.idMunicipality ? (
+                                                                        <FormFeedback type="invalid">
+                                                                            {validation.errors.idMunicipality}
+                                                                        </FormFeedback>
+                                                                    ) : null}
+                                                                </FormGroup>
+                                                            </Col>
+                                                        </Row>
+                                                    </Form>
+                                                </div>
+                                            </TabPane>
+                                            <TabPane tabId={3}>
                                                 <div>
                                                     <Form>
                                                         <Row>
@@ -551,172 +879,24 @@ const Register = props => {
                                                                     </div>
                                                                 </FormGroup>
                                                             </Col>
-                                                        </Row>
-                                                    </Form>
-                                                </div>
-                                            </TabPane>
-                                            <TabPane tabId={3}>
-                                                <div>
-                                                    <Form>
-                                                        <Row>
-                                                            <Col lg="6">
-                                                                <FormGroup className="mb-3">
-                                                                    <Label className="form-label">Nombre / Razon
-                                                                        Social</Label>
-                                                                    <Input
-                                                                        id="ownerName"
-                                                                        name="ownerName"
-                                                                        type="text"
-                                                                        placeholder="Ingresa tu Razon Social"
-                                                                        onChange={validation.handleChange}
-                                                                        onBlur={validation.handleBlur}
-                                                                        value={validation.values.ownerName || ""}
-                                                                        invalid={
-                                                                            !!(validation.touched.ownerName && validation.errors.ownerName)
-                                                                        }
-                                                                    />
-                                                                    {validation.touched.ownerName && validation.errors.ownerName ? (
-                                                                        <FormFeedback type="invalid">
-                                                                            <div>{validation.errors.ownerName}</div>
-                                                                        </FormFeedback>
-                                                                    ) : null}
-                                                                </FormGroup>
-                                                            </Col>
-
-                                                            <Col lg="6">
-                                                                <FormGroup className="mb-3">
-                                                                    <label
-                                                                        // className="visually-hidden"
-                                                                        htmlFor="inlineFormSelectPref"
-                                                                    >
-                                                                        Tipo Documento
-                                                                    </label>
-                                                                    <select
-                                                                        className={`form-select ${validation.touched.ownerIdentificationType &&
-                                                                        validation.errors.ownerIdentificationType ? "is-invalid" : ""}`}
-                                                                        id="ownerIdentificationType"
-                                                                        name="ownerIdentificationType"
-                                                                        onChange={validation.handleChange}
-                                                                        onBlur={validation.handleBlur}
-                                                                        value={validation.values.ownerIdentificationType}
-                                                                    >
-                                                                        <option value="0">Seleccione...</option>
-                                                                        {OWNER_IDENTIFICATION_TYPES.map((type) => (
-                                                                            <option key={type.value}
-                                                                                    value={type.value}>{type.label}</option>
-                                                                        ))}
-                                                                    </select>
-                                                                    {validation.touched.ownerIdentificationType && validation.errors.ownerIdentificationType ? (
-                                                                        <FormFeedback type="invalid">
-                                                                            {validation.errors.ownerIdentificationType}
-                                                                        </FormFeedback>
-                                                                    ) : null}
-                                                                </FormGroup>
-                                                            </Col>
-                                                        </Row>
-                                                        <Row>
-                                                            <Col lg="6">
-                                                                <FormGroup className="mb-3">
-                                                                    <Label className="form-label"># Documento</Label>
-                                                                    <Input
-                                                                        id="ownerIdentification"
-                                                                        name="ownerIdentification"
-                                                                        type="text"
-                                                                        placeholder="Ingresa tu Razon Social"
-                                                                        onChange={validation.handleChange}
-                                                                        onBlur={validation.handleBlur}
-                                                                        value={validation.values.ownerIdentification || ""}
-                                                                        invalid={
-                                                                            !!(validation.touched.ownerIdentification && validation.errors.ownerIdentification)
-                                                                        }
-                                                                    />
-                                                                    {validation.touched.ownerName && validation.errors.ownerIdentification ? (
-                                                                        <FormFeedback type="invalid">
-                                                                            <div>{validation.errors.ownerIdentification}</div>
-                                                                        </FormFeedback>
-                                                                    ) : null}
-                                                                </FormGroup>
-                                                            </Col>
-
-                                                            <Col lg="6">
-                                                                <FormGroup className="mb-3">
-                                                                    <label
-                                                                        // className="visually-hidden"
-                                                                        htmlFor="inlineFormSelectPref"
-                                                                    >
-                                                                        Pais
-                                                                    </label>
-                                                                    <select
-                                                                        className="form-select"
-                                                                        id="inlineFormSelectPref"
-                                                                    >
-                                                                        <option defaultValue>Seleccione...</option>
-                                                                        <option defaultValue="1">One</option>
-                                                                        <option defaultValue="2">Two</option>
-                                                                        <option defaultValue="3">Three</option>
-                                                                    </select>
-                                                                </FormGroup>
-                                                            </Col>
-                                                        </Row>
-                                                        <Row>
-                                                            <Col lg="6">
-                                                                <FormGroup className="mb-3">
-                                                                    <label
-                                                                        // className="visually-hidden"
-                                                                        htmlFor="inlineFormSelectPref"
-                                                                    >
-                                                                        Departamento
-                                                                    </label>
-                                                                    <select
-                                                                        className="form-select"
-                                                                        id="inlineFormSelectPref"
-                                                                    >
-                                                                        <option defaultValue>Seleccione...</option>
-                                                                        <option defaultValue="1">One</option>
-                                                                        <option defaultValue="2">Two</option>
-                                                                        <option defaultValue="3">Three</option>
-                                                                    </select>
-                                                                </FormGroup>
-                                                            </Col>
-                                                            <Col lg="6">
-                                                                <FormGroup className="mb-3">
-                                                                    <label
-                                                                        // className="visually-hidden"
-                                                                        htmlFor="inlineFormSelectPref"
-                                                                    >
-                                                                        Ciudad
-                                                                    </label>
-                                                                    <select
-                                                                        className="form-select"
-                                                                        id="inlineFormSelectPref"
-                                                                    >
-                                                                        <option defaultValue>Seleccione...</option>
-                                                                        <option defaultValue="1">One</option>
-                                                                        <option defaultValue="2">Two</option>
-                                                                        <option defaultValue="3">Three</option>
-                                                                    </select>
-                                                                </FormGroup>
+                                                            <Col lg="9">
+                                                                <div className="form-check">
+                                                                    <input type="checkbox"
+                                                                           className="form-check-input"
+                                                                           id="termsAccepted"
+                                                                           name="termsAccepted"
+                                                                           onChange={validation.handleChange}
+                                                                           checked={validation.values.termsAccepted}/>
+                                                                    <label className="form-check-label fw-normal"
+                                                                           htmlFor="term-conditionCheck">Estoy de
+                                                                        acuerdo con <Link
+                                                                            to="#"
+                                                                            className="text-primary">los
+                                                                            términos y condiciones</Link></label>
+                                                                </div>
                                                             </Col>
                                                         </Row>
                                                     </Form>
-                                                </div>
-                                            </TabPane>
-                                            <TabPane tabId={4}>
-                                                <div className="row justify-content-center">
-                                                    <Col lg="12">
-                                                        <div className="text-center">
-                                                            <div className="mb-4">
-                                                                <i className="mdi mdi-check-circle-outline text-success display-4"/>
-                                                            </div>
-                                                            <div>
-                                                                <h5>Confirm Detail</h5>
-                                                                <p className="text-muted">
-                                                                    If several languages coalesce, the grammar
-                                                                    of the resulting
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                    </Col>
                                                 </div>
                                             </TabPane>
                                         </TabContent>
@@ -735,12 +915,11 @@ const Register = props => {
                                                         toggleTabwiz(activeTabwiz - 1);
                                                     }}
                                                 >
-                                                    Previous
+                                                    Volver
                                                 </Link>
                                             </li>
                                             <li
                                                 className={
-                                                    (activeTabwiz === 4) ||
                                                     (activeTabwiz === 1 && !isTab1Valid) ||
                                                     (activeTabwiz === 2 && !isTab2Valid) ||
                                                     (activeTabwiz === 3 && !isTab3Valid)
@@ -755,11 +934,17 @@ const Register = props => {
                                                         if ((activeTabwiz === 1 && isTab1Valid) ||
                                                             (activeTabwiz === 2 && isTab2Valid) ||
                                                             (activeTabwiz === 3 && isTab3Valid)) {
-                                                            toggleTabwiz(activeTabwiz + 1);
+
+                                                            if (activeTabwiz === 3) {
+                                                                handleRegister();
+                                                            } else {
+                                                                toggleTabwiz(activeTabwiz + 1);
+                                                            }
+
                                                         }
                                                     }}
                                                 >
-                                                    Next
+                                                    {activeTabwiz === 3 ? "Registrar" : "Continuar"}
                                                 </Link>
                                             </li>
                                         </ul>

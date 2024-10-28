@@ -1,3 +1,5 @@
+export const APP_NAME = 'Nexo';
+
 export const IDENTIFICATION_TYPES = [
     {value: 'CC', label: 'cédula ciudadania'},
     {value: 'CE', label: 'cédula extranjería'},

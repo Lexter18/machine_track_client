@@ -1,7 +1,7 @@
 import {
   REGISTER_USER,
   REGISTER_USER_SUCCESSFUL,
-  REGISTER_USER_FAILED,
+  REGISTER_USER_FAILED, CLEAR_USER,
 } from "./actionTypes"
 
 const initialState = {
@@ -34,6 +34,13 @@ const account = (state = initialState, action) => {
         user: null,
         loading: false,
         registrationError: action.payload,
+      }
+      break
+    case CLEAR_USER:
+      state = {
+        ...state,
+        user: null,
+        registrationError: null,
       }
       break
     default:

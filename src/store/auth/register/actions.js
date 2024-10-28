@@ -1,7 +1,7 @@
 import {
   REGISTER_USER,
   REGISTER_USER_SUCCESSFUL,
-  REGISTER_USER_FAILED,
+  REGISTER_USER_FAILED, CLEAR_USER,
 } from "./actionTypes"
 
 export const registerUser = user => {
@@ -24,3 +24,7 @@ export const registerUserFailed = user => {
     payload: user,
   }
 }
+
+export const clearUser = () => ({
+    type: CLEAR_USER,
+});
