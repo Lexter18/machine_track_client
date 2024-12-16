@@ -1,6 +1,5 @@
 import PropTypes from "prop-types";
 import React, {useEffect} from "react";
-import logolight from "../../assets/images/logo-light.png";
 import logodark from "../../assets/images/logo-dark.png";
 
 import {Row, Col, CardBody, Card, Alert, Container, Form, Input, FormFeedback, Label} from "reactstrap";
@@ -19,9 +18,10 @@ import {useFormik} from "formik";
 import {loginUser} from "../../store/actions";
 
 import {createSelector} from 'reselect';
+import {APP_NAME} from "../../constants/constantsUtils";
 
 const Login = props => {
-    document.title = "Login | Upzet - React Admin & Dashboard Template";
+    document.title = "Login | " + APP_NAME;
 
     const dispatch = useDispatch();
 
@@ -76,13 +76,8 @@ const Login = props => {
                                                     src={logodark}
                                                     alt=""
                                                     height="24"
+                                                    style={{marginTop: '24px'}}
                                                     className="auth-logo logo-dark mx-auto"
-                                                />
-                                                <img
-                                                    src={logolight}
-                                                    alt=""
-                                                    height="24"
-                                                    className="auth-logo logo-light mx-auto"
                                                 />
                                             </Link>
                                         </div>
@@ -167,8 +162,8 @@ const Login = props => {
                                                                     to="/auth-recoverpw"
                                                                     className="text-muted"
                                                                 >
-                                                                    <i className="mdi mdi-lock"></i> Forgot your
-                                                                    password?
+                                                                    <i className="mdi mdi-lock"></i> ¿ Olvidaste tu
+                                                                    Password ?
                                                                 </Link>
                                                             </div>
                                                         </Col>
